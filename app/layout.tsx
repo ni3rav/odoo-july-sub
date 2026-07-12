@@ -1,11 +1,15 @@
-import { Geist_Mono, Noto_Sans } from "next/font/google"
+import { Geist_Mono, Hanken_Grotesk } from "next/font/google"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { QueryProvider } from "@/components/providers/query-provider"
+import { TooltipProvider } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
-const notoSans = Noto_Sans({ subsets: ["latin"], variable: "--font-sans" })
+const hankenGrotesk = Hanken_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-sans",
+})
 
 const fontMono = Geist_Mono({
   subsets: ["latin"],
@@ -25,12 +29,14 @@ export default function RootLayout({
         "antialiased",
         fontMono.variable,
         "font-sans",
-        notoSans.variable
+        hankenGrotesk.variable
       )}
     >
       <body>
         <ThemeProvider>
-          <QueryProvider>{children}</QueryProvider>
+          <QueryProvider>
+            <TooltipProvider>{children}</TooltipProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>
