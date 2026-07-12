@@ -1,11 +1,17 @@
 "use client"
 
-import * as React from "react"
-import { Controller, useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { useDriversQuery } from "@/components/drivers/driver-queries"
+import { useVehiclesQuery } from "@/components/fleet/fleet-queries"
 import { FormErrorBanner } from "@/components/form/form-error-banner"
 import { fieldErrorClassName, FormField } from "@/components/form/form-field"
+import { TripLocationPickerDialog } from "@/components/trips/trip-location-picker-dialog"
+import {
+  useCreateTripMutation,
+  useUpdateTripMutation,
+  type TripRecord,
+} from "@/components/trips/trip-queries"
 import { Button } from "@/components/ui/button"
+import { type ComboboxOption } from "@/components/ui/combobox"
 import {
   Dialog,
   DialogContent,
@@ -16,21 +22,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Spinner } from "@/components/ui/spinner"
-import { useDriversQuery } from "@/components/drivers/driver-queries"
-import { useVehiclesQuery } from "@/components/fleet/fleet-queries"
-import {
-  useCreateTripMutation,
-  useUpdateTripMutation,
-  type TripRecord,
-} from "@/components/trips/trip-queries"
 import { handleFormSubmitError } from "@/lib/handle-form-submit-error"
 import { tryCatch } from "@/lib/try-catch"
 import { optionalNumberRegisterOptions } from "@/lib/zod-fields"
@@ -39,6 +31,17 @@ import {
   formatCargoCapacityError,
   type CreateTripInput,
 } from "@/modules/trips"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { MapPin } from "lucide-react"
+import * as React from "react"
+import { Controller, useForm } from "react-hook-form"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select"
 
 type TripFormDialogProps = {
   trigger: React.ReactNode
@@ -79,12 +82,33 @@ export function TripFormDialog({ trigger, trip }: TripFormDialogProps) {
     [driversQuery.data]
   )
 
+  const vehicleOptions = React.useMemo<ComboboxOption[]>(
+    () =>
+      (vehiclesQuery.data ?? []).map((vehicle) => ({
+        value: vehicle.id,
+        label: `${vehicle.name} (${vehicle.registrationNumber}) · ${vehicle.maxLoadCapacityKg} kg`,
+        keywords: [vehicle.registrationNumber, vehicle.type, vehicle.region],
+      })),
+    [vehiclesQuery.data]
+  )
+
+  const driverOptions = React.useMemo<ComboboxOption[]>(
+    () =>
+      availableDrivers.map((driver) => ({
+        value: driver.id,
+        label: `${driver.name} (${driver.licenseNumber})`,
+        keywords: [driver.licenseNumber, driver.licenseCategory],
+      })),
+    [availableDrivers]
+  )
+
   const {
     control,
     register,
     handleSubmit,
     reset,
     setError,
+    setValue,
     clearErrors,
     watch,
     trigger: triggerValidation,
@@ -233,6 +257,26 @@ export function TripFormDialog({ trigger, trip }: TripFormDialogProps) {
               />
             </FormField>
 
+            <div className="flex items-center justify-between md:col-span-2">
+              <p className="text-sm text-muted-foreground">
+                Source &amp; destination
+              </p>
+              <TripLocationPickerDialog
+                trigger={
+                  <Button type="button" variant="outline" size="sm">
+                    <MapPin className="h-3.5 w-3.5" />
+                    Pick on map
+                  </Button>
+                }
+                onConfirm={(source, destination) => {
+                  setValue("source", source, { shouldValidate: true })
+                  setValue("destination", destination, {
+                    shouldValidate: true,
+                  })
+                }}
+              />
+            </div>
+
             <FormField
               label="Source"
               htmlFor="source"
@@ -240,6 +284,7 @@ export function TripFormDialog({ trigger, trip }: TripFormDialogProps) {
             >
               <Input
                 id="source"
+                placeholder="Type or pick on map"
                 aria-invalid={Boolean(errors.source)}
                 className={fieldErrorClassName(errors.source?.message)}
                 {...register("source")}
@@ -253,6 +298,7 @@ export function TripFormDialog({ trigger, trip }: TripFormDialogProps) {
             >
               <Input
                 id="destination"
+                placeholder="Type or pick on map"
                 aria-invalid={Boolean(errors.destination)}
                 className={fieldErrorClassName(errors.destination?.message)}
                 {...register("destination")}

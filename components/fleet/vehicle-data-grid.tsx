@@ -19,6 +19,7 @@ import {
   type VehicleRecord,
 } from "@/components/fleet/fleet-queries"
 import type { VehicleStatus } from "@/db/schema/constants"
+import { formatCurrency } from "../operations/format"
 
 type VehicleDataGridProps = {
   vehicles: VehicleRecord[]
@@ -99,7 +100,7 @@ export function VehicleDataGrid({
         ),
         cell: ({ row }) => (
           <span className="text-xs text-foreground">
-            {row.getValue("acquisitionCost")}
+            {formatCurrency(row.getValue("acquisitionCost"))}
           </span>
         ),
       },
