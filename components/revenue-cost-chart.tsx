@@ -47,7 +47,7 @@ export function RevenueCostChart({ monthlyData }: RevenueCostChartProps) {
           <YAxis
             tickLine={false}
             axisLine={false}
-            tickFormatter={(value) => `$${value}`}
+            tickFormatter={(value) => `₹${value}`}
           />
           <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
           <ChartLegend content={<ChartLegendContent />} />

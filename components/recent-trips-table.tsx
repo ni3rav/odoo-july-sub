@@ -123,7 +123,7 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
         ),
         cell: ({ row }) => (
           <span className="text-xs font-medium text-foreground">
-            $
+            ₹
             {Number(row.getValue("revenue")).toLocaleString(undefined, {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
@@ -177,7 +177,7 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
       table={table}
       pageSizeOptions={[5, 10]}
       showSelectionSummary={false}
-      className="max-h-96 overflow-hidden rounded-xl border border-border bg-card"
+      className="max-h-96 overflow-hidden rounded-xl bg-card"
     />
   )
 }

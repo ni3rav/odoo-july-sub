@@ -12,7 +12,7 @@ import {
   AlertTriangle,
   Percent,
   TrendingDown,
-  CircleDollarSign,
+  IndianRupee,
 } from "lucide-react"
 
 export default async function DashboardPage({
@@ -63,14 +63,14 @@ export default async function DashboardPage({
     },
     {
       title: "Total Revenue",
-      value: `$${Number(data.kpis.totalRevenue).toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+      value: `₹${Number(data.kpis.totalRevenue).toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
       description: "Earnings from completed trips",
-      icon: CircleDollarSign,
+      icon: IndianRupee,
       color: "text-violet-500 bg-violet-500/10",
     },
     {
       title: "Operational Cost",
-      value: `$${Number(data.kpis.totalCost).toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+      value: `₹${Number(data.kpis.totalCost).toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
       description: "Fuel, maintenance & tolls",
       icon: TrendingDown,
       color: "text-rose-500 bg-rose-500/10",

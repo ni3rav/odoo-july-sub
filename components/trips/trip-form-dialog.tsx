@@ -15,14 +15,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { Combobox, type ComboboxOption } from "@/components/ui/combobox"
 import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Spinner } from "@/components/ui/spinner"
 import { useDriversQuery } from "@/components/drivers/driver-queries"
 import { useVehiclesQuery } from "@/components/fleet/fleet-queries"
@@ -77,6 +71,26 @@ export function TripFormDialog({ trigger, trip }: TripFormDialogProps) {
         isDispatchEligible(driver.licenseExpiryDate, driver.status)
       ),
     [driversQuery.data]
+  )
+
+  const vehicleOptions = React.useMemo<ComboboxOption[]>(
+    () =>
+      (vehiclesQuery.data ?? []).map((vehicle) => ({
+        value: vehicle.id,
+        label: `${vehicle.name} (${vehicle.registrationNumber}) · ${vehicle.maxLoadCapacityKg} kg`,
+        keywords: [vehicle.registrationNumber, vehicle.type, vehicle.region],
+      })),
+    [vehiclesQuery.data]
+  )
+
+  const driverOptions = React.useMemo<ComboboxOption[]>(
+    () =>
+      availableDrivers.map((driver) => ({
+        value: driver.id,
+        label: `${driver.name} (${driver.licenseNumber})`,
+        keywords: [driver.licenseNumber, driver.licenseCategory],
+      })),
+    [availableDrivers]
   )
 
   const {
@@ -268,29 +282,20 @@ export function TripFormDialog({ trigger, trip }: TripFormDialogProps) {
                 control={control}
                 name="vehicleId"
                 render={({ field }) => (
-                  <Select
+                  <Combobox
+                    id="vehicle-id"
+                    options={vehicleOptions}
                     value={field.value}
                     onValueChange={(value) => {
                       field.onChange(value)
                       void triggerValidation("cargoWeightKg")
                     }}
-                  >
-                    <SelectTrigger
-                      id="vehicle-id"
-                      aria-invalid={Boolean(errors.vehicleId)}
-                      className={fieldErrorClassName(errors.vehicleId?.message)}
-                    >
-                      <SelectValue placeholder="Select vehicle" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {(vehiclesQuery.data ?? []).map((vehicle) => (
-                        <SelectItem key={vehicle.id} value={vehicle.id}>
-                          {vehicle.name} ({vehicle.registrationNumber}) ·{" "}
-                          {vehicle.maxLoadCapacityKg} kg
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    placeholder="Select vehicle"
+                    searchPlaceholder="Search by name or registration..."
+                    emptyText="No vehicles found."
+                    aria-invalid={Boolean(errors.vehicleId)}
+                    className={fieldErrorClassName(errors.vehicleId?.message)}
+                  />
                 )}
               />
             </FormField>
@@ -304,22 +309,17 @@ export function TripFormDialog({ trigger, trip }: TripFormDialogProps) {
                 control={control}
                 name="driverId"
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger
-                      id="driver-id"
-                      aria-invalid={Boolean(errors.driverId)}
-                      className={fieldErrorClassName(errors.driverId?.message)}
-                    >
-                      <SelectValue placeholder="Select driver" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableDrivers.map((driver) => (
-                        <SelectItem key={driver.id} value={driver.id}>
-                          {driver.name} ({driver.licenseNumber})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Combobox
+                    id="driver-id"
+                    options={driverOptions}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    placeholder="Select driver"
+                    searchPlaceholder="Search by name or license..."
+                    emptyText="No drivers found."
+                    aria-invalid={Boolean(errors.driverId)}
+                    className={fieldErrorClassName(errors.driverId?.message)}
+                  />
                 )}
               />
             </FormField>

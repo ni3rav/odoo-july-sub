@@ -89,7 +89,7 @@ export async function getDashboardKPIs(filters?: {
     Retired: vehicles.filter((v) => v.status === "Retired").length,
   }
 
-  let recentTripsList = trips.map((t) => {
+  const recentTripsList = trips.map((t) => {
     const v = vehicles.find((veh) => veh.id === t.vehicleId)
     const d = drivers.find((drv) => drv.id === t.driverId)
     return {
@@ -106,64 +106,16 @@ export async function getDashboardKPIs(filters?: {
     }
   })
 
-  if (recentTripsList.length === 0) {
-    recentTripsList = [
-      {
-        id: "trip-1",
-        orderId: "TRIP-2849",
-        source: "Chicago Hub",
-        destination: "Detroit Depot",
-        vehicleName: "Transit Van 05",
-        vehicleReg: "Van-05",
-        driverName: "Alex",
-        revenue: 850,
-        status: "Completed",
-        createdAt: new Date(Date.now() - 3600000 * 4),
-      },
-      {
-        id: "trip-2",
-        orderId: "TRIP-2850",
-        source: "Detroit Depot",
-        destination: "Cleveland Hub",
-        vehicleName: "Transit Van 05",
-        vehicleReg: "Van-05",
-        driverName: "Alex",
-        revenue: 420,
-        status: "InTransit",
-        createdAt: new Date(Date.now() - 3600000 * 2),
-      },
-      {
-        id: "trip-3",
-        orderId: "TRIP-2851",
-        source: "Cleveland Hub",
-        destination: "Chicago Hub",
-        vehicleName: "Semi-Truck 12",
-        vehicleReg: "TRK-12",
-        driverName: "Sarah Connor",
-        revenue: 1200,
-        status: "Dispatched",
-        createdAt: new Date(Date.now() - 1800000),
-      },
-    ]
-  }
-
-  if (vehicles.length <= 1) {
-    statusBreakdown.Available = 3
-    statusBreakdown.OnTrip = 4
-    statusBreakdown.InShop = 1
-    statusBreakdown.Retired = 0
-  }
-
   return {
     kpis: {
-      totalVehicles: vehicles.length <= 1 ? 8 : totalVehicles,
-      activeVehicles: vehicles.length <= 1 ? 5 : activeVehicles,
-      utilization: vehicles.length <= 1 ? 63 : utilization,
-      activeTrips: trips.length === 0 ? 2 : activeTrips,
-      availableDrivers: drivers.length <= 1 ? 5 : availableDrivers,
-      vehiclesInShop: vehicles.length <= 1 ? 1 : vehiclesInShop,
-      totalCost: totalCost === 0 ? 3240.5 : totalCost,
-      totalRevenue: totalRevenue === 0 ? 9450.0 : totalRevenue,
+      totalVehicles,
+      activeVehicles,
+      utilization,
+      activeTrips,
+      availableDrivers,
+      vehiclesInShop,
+      totalCost,
+      totalRevenue,
     },
     statusBreakdown,
     recentTrips: recentTripsList,
@@ -171,6 +123,9 @@ export async function getDashboardKPIs(filters?: {
 }
 
 export async function getAnalyticsData() {
+  const vehiclesResult = await tryCatch(db.select().from(vehicle))
+  const vehicles = vehiclesResult.data || []
+
   const tripsResult = await tryCatch(db.select().from(trip))
   const trips = tripsResult.data || []
 
@@ -184,7 +139,7 @@ export async function getAnalyticsData() {
   const expenses = expensesResult.data || []
 
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
-  let monthlyChartData = months.map((month) => ({
+  const monthlyChartData = months.map((month) => ({
     month,
     revenue: 0,
     cost: 0,
@@ -212,20 +167,6 @@ export async function getAnalyticsData() {
     monthlyChartData[monthIdx].cost += Number(e.amount)
   })
 
-  const hasNoData = monthlyChartData.every(
-    (d) => d.revenue === 0 && d.cost === 0
-  )
-  if (hasNoData) {
-    monthlyChartData = [
-      { month: "Jan", revenue: 12000, cost: 7200 },
-      { month: "Feb", revenue: 15000, cost: 8900 },
-      { month: "Mar", revenue: 18500, cost: 11200 },
-      { month: "Apr", revenue: 16000, cost: 9400 },
-      { month: "May", revenue: 21000, cost: 12400 },
-      { month: "Jun", revenue: 24000, cost: 13900 },
-    ]
-  }
-
   const fuelCost = fuelLogs.reduce((acc, f) => acc + Number(f.cost), 0)
   const maintenanceCost = maintenances.reduce(
     (acc, m) => acc + Number(m.cost),
@@ -233,19 +174,11 @@ export async function getAnalyticsData() {
   )
   const otherCost = expenses.reduce((acc, e) => acc + Number(e.amount), 0)
 
-  let costBreakdown = [
+  const costBreakdown = [
     { name: "Fuel", value: fuelCost },
     { name: "Maintenance", value: maintenanceCost },
     { name: "Tolls & Fees", value: otherCost },
   ]
-
-  if (fuelCost === 0 && maintenanceCost === 0 && otherCost === 0) {
-    costBreakdown = [
-      { name: "Fuel", value: 5400 },
-      { name: "Maintenance", value: 3100 },
-      { name: "Tolls & Fees", value: 1250 },
-    ]
-  }
 
   let totalDistance = 0
   let totalFuel = 0
@@ -256,12 +189,36 @@ export async function getAnalyticsData() {
     }
   })
   const fuelEfficiency =
-    totalFuel > 0 ? (totalDistance / totalFuel).toFixed(2) : "6.8"
+    totalFuel > 0 ? (totalDistance / totalFuel).toFixed(2) : "0.00"
+
+  const topCostliestVehicles = vehicles
+    .map((v) => {
+      const vehicleFuelCost = fuelLogs
+        .filter((f) => f.vehicleId === v.id)
+        .reduce((acc, f) => acc + Number(f.cost), 0)
+      const vehicleMaintenanceCost = maintenances
+        .filter((m) => m.vehicleId === v.id)
+        .reduce((acc, m) => acc + Number(m.cost), 0)
+      const vehicleExpenseCost = expenses
+        .filter((e) => e.vehicleId === v.id)
+        .reduce((acc, e) => acc + Number(e.amount), 0)
+
+      return {
+        vehicleName: v.name,
+        vehicleReg: v.registrationNumber,
+        totalCost:
+          vehicleFuelCost + vehicleMaintenanceCost + vehicleExpenseCost,
+      }
+    })
+    .filter((row) => row.totalCost > 0)
+    .sort((a, b) => b.totalCost - a.totalCost)
+    .slice(0, 5)
 
   return {
     monthlyData: monthlyChartData,
     costBreakdown,
     fuelEfficiency,
+    topCostliestVehicles,
   }
 }
 
@@ -301,44 +258,6 @@ export async function generateCSVExport() {
       t.createdAt.toISOString().split("T")[0],
     ]
   })
-
-  if (rows.length === 0) {
-    rows.push(
-      [
-        "TRIP-2849",
-        "Transit Van 05",
-        "Alex",
-        "Chicago Hub",
-        "Detroit Depot",
-        "450",
-        "850",
-        "Completed",
-        "2026-07-10",
-      ],
-      [
-        "TRIP-2850",
-        "Transit Van 05",
-        "Alex",
-        "Detroit Depot",
-        "Cleveland Hub",
-        "280",
-        "420",
-        "InTransit",
-        "2026-07-11",
-      ],
-      [
-        "TRIP-2851",
-        "Semi-Truck 12",
-        "Sarah Connor",
-        "Cleveland Hub",
-        "Chicago Hub",
-        "550",
-        "1200",
-        "Dispatched",
-        "2026-07-12",
-      ]
-    )
-  }
 
   const csvContent = [
     headers.join(","),

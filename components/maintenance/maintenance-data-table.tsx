@@ -37,7 +37,7 @@ function formatDate(value: Date | string) {
 function formatCurrency(value: number) {
   return new Intl.NumberFormat(undefined, {
     style: "currency",
-    currency: "USD",
+    currency: "INR",
     maximumFractionDigits: 2,
   }).format(value)
 }

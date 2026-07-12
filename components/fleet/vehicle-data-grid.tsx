@@ -180,7 +180,7 @@ export function VehicleDataGrid({
       table={table}
       pageSizeOptions={[10, 25, 50]}
       showSelectionSummary={false}
-      className="rounded-xl border border-border bg-card"
+      className="rounded-xl bg-card"
     />
   )
 }

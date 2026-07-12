@@ -1,19 +1,12 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { useCostSummaryQuery } from "@/components/operations/operations-queries"
+import { VehicleCostDataTable } from "@/components/operations/vehicle-cost-data-table"
 import { Skeleton } from "@/components/ui/skeleton"
 
-function formatCurrency(value: number) {
-  return `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+function formatFleetTotal(value: number) {
+  return `₹${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
 }
 
 export function CostSummary() {
@@ -35,53 +28,15 @@ export function CostSummary() {
           <Skeleton className="h-9 w-32" />
         ) : (
           <div className="text-3xl font-bold tracking-tight text-primary">
-            {formatCurrency(summary?.fleetTotal ?? 0)}
+            {formatFleetTotal(summary?.fleetTotal ?? 0)}
           </div>
         )}
       </CardHeader>
       <CardContent>
-        {costSummaryQuery.isLoading ? (
-          <Skeleton className="h-32 w-full" />
-        ) : (
-          <div className="overflow-hidden rounded-md border border-border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Vehicle</TableHead>
-                  <TableHead>Fuel</TableHead>
-                  <TableHead>Maintenance</TableHead>
-                  <TableHead>Expenses</TableHead>
-                  <TableHead>Total</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {summary?.byVehicle.length ? (
-                  summary.byVehicle.map((row) => (
-                    <TableRow key={row.vehicleId}>
-                      <TableCell className="font-medium text-foreground">
-                        {row.vehicleName} ({row.vehicleReg})
-                      </TableCell>
-                      <TableCell>{formatCurrency(row.fuelCost)}</TableCell>
-                      <TableCell>
-                        {formatCurrency(row.maintenanceCost)}
-                      </TableCell>
-                      <TableCell>{formatCurrency(row.expenseCost)}</TableCell>
-                      <TableCell className="font-semibold text-foreground">
-                        {formatCurrency(row.totalCost)}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-16 text-center">
-                      No cost data yet.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        )}
+        <VehicleCostDataTable
+          rows={summary?.byVehicle ?? []}
+          loading={costSummaryQuery.isLoading}
+        />
       </CardContent>
     </Card>
   )
