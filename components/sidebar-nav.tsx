@@ -50,9 +50,9 @@ export function SidebarNav({ items }: SidebarNavProps) {
               render={<Link href={item.href} />}
               isActive={isActive}
               className={cn(
-                "transition-all duration-200 group",
+                "group transition-all duration-200",
                 isActive
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold shadow-xs"
+                  ? "bg-sidebar-accent font-semibold text-sidebar-accent-foreground shadow-xs"
                   : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}
             >
