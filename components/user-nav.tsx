@@ -46,8 +46,14 @@ export function UserNav({ user }: UserNavProps) {
           variant="ghost"
           className="relative flex h-12 w-full justify-start gap-3 rounded-lg px-2 text-left hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
         >
-          <Avatar className="h-8 w-8 rounded-lg">
-            {user.image && <AvatarImage src={user.image} alt={user.name} />}
+          <Avatar className="size-8 rounded-lg after:hidden">
+            {user.image && (
+              <AvatarImage
+                src={user.image}
+                alt={user.name}
+                className="rounded-lg"
+              />
+            )}
             <AvatarFallback className="rounded-lg bg-primary/10 text-xs font-semibold text-primary">
               {initials}
             </AvatarFallback>

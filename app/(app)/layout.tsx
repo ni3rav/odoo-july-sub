@@ -1,5 +1,6 @@
 import { requireSession } from "@/lib/auth-guard"
 import { getUserPermissions } from "@/modules/rbac/rbac.service"
+import { AppLogo } from "@/components/app-logo"
 import {
   Sidebar,
   SidebarContent,
@@ -10,6 +11,7 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { Separator } from "@/components/ui/separator"
 import { UserNav } from "@/components/user-nav"
 import { SidebarNav } from "@/components/sidebar-nav"
 import { SidebarHoverPeek } from "@/components/sidebar-hover-peek"
@@ -83,18 +85,10 @@ export default async function AppLayout({
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <Sidebar className="border-r border-border bg-card">
-          <SidebarHeader className="border-b border-border">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-2 text-lg font-semibold text-primary"
-            >
-              <div className="flex size-12 items-center justify-center rounded-lg overflow-hidden p-0.5">
-                <img src="/light-icon-app.png" alt="TransitOps Logo" className="h-full w-full object-contain block dark:hidden" />
-                <img src="/dark-icon-app.png" alt="TransitOps Logo" className="h-full w-full object-contain hidden dark:block" />
-              </div>
-              <span>TransitOps</span>
+          <SidebarHeader className="border-b border-border p-4">
+            <Link href="/dashboard">
+              <AppLogo />
             </Link>
-            <SidebarTrigger className="h-8 w-8" />
           </SidebarHeader>
 
           <SidebarContent className="p-2">
@@ -113,7 +107,12 @@ export default async function AppLayout({
         </Sidebar>
 
         <SidebarInset className="flex flex-col bg-background">
-          <header className="gap:4 flex h-[57px] items-center border-b border-border bg-card px-4 md:px-6">
+          <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border bg-card px-4 md:px-6">
+            <SidebarTrigger className="-ml-1" />
+            <Separator
+              orientation="vertical"
+              className="mr-2 data-vertical:h-4 data-vertical:self-auto"
+            />
             <div className="min-w-0 flex-1">
               <ActiveRouteTitle />
             </div>
