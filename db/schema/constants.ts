@@ -36,12 +36,7 @@ export const PERMISSION_MODULES = [
   "settings",
 ] as const
 
-export const PERMISSION_ACTIONS = [
-  "view",
-  "create",
-  "edit",
-  "delete",
-] as const
+export const PERMISSION_ACTIONS = ["view", "create", "edit", "delete"] as const
 
 export const ROLE_SLUGS = [
   "FleetManager",

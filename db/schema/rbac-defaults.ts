@@ -43,9 +43,7 @@ export const DEFAULT_ROLE_PERMISSION_MATRIX: RolePermissionMatrix = {
   },
 }
 
-export function flattenMatrix(
-  matrix: RolePermissionMatrix
-): Array<{
+export function flattenMatrix(matrix: RolePermissionMatrix): Array<{
   roleSlug: keyof RolePermissionMatrix
   module: string
   action: string
