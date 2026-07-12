@@ -24,7 +24,7 @@ export const authMiddleware = new Elysia({ name: "auth" }).derive(
 )
 
 export const requireAuth = new Elysia({ name: "require-auth" }).derive(
-  { as: "scoped" },
+  { as: "global" },
   async ({ request, status }) => {
     const { data: session } = await tryCatch(
       auth.api.getSession({ headers: request.headers })

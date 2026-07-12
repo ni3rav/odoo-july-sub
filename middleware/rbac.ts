@@ -11,8 +11,7 @@ export function requirePermission(
     name: `permission-${module}-${action}`,
   })
     .use(requireAuth)
-    .derive({ as: "scoped" }, async ({ user, status }) => {
-      console.log({ user, status })
+    .derive({ as: "global" }, async ({ user, status }) => {
       if (!user) {
         return status(401, { error: "Unauthorized" })
       }
