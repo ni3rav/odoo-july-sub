@@ -83,7 +83,7 @@ export default async function AppLayout({
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <Sidebar className="border-r border-border bg-card">
-          <SidebarHeader className="border-b border-border p-4">
+          <SidebarHeader className="border-b border-border">
             <Link
               href="/dashboard"
               className="flex items-center gap-2 text-lg font-semibold text-primary"
@@ -94,6 +94,7 @@ export default async function AppLayout({
               </div>
               <span>TransitOps</span>
             </Link>
+            <SidebarTrigger className="h-8 w-8" />
           </SidebarHeader>
 
           <SidebarContent className="p-2">
