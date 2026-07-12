@@ -1,0 +1,117 @@
+import { requireSession } from "@/lib/auth-guard"
+import { getAnalyticsData, getDashboardKPIs } from "@/modules/reports/reports.service"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { RevenueCostChart } from "@/components/revenue-cost-chart"
+import { CostAllocationChart } from "@/components/cost-allocation-chart"
+import { cn } from "@/lib/utils"
+import {
+  Download,
+  Percent,
+  TrendingDown,
+  CircleDollarSign,
+  Fuel,
+  LineChart,
+} from "lucide-react"
+
+export default async function AnalyticsPage() {
+  await requireSession()
+  
+  const analytics = await getAnalyticsData()
+  const dashboardData = await getDashboardKPIs()
+
+  const kpisList = [
+    {
+      title: "Fleet Utilization",
+      value: `${dashboardData.kpis.utilization}%`,
+      description: "Non-retired vehicles in use",
+      icon: Percent,
+      color: "text-primary bg-primary/10",
+    },
+    {
+      title: "Fuel Efficiency",
+      value: `${analytics.fuelEfficiency} km/L`,
+      description: "Average fuel economy",
+      icon: Fuel,
+      color: "text-emerald-500 bg-emerald-500/10",
+    },
+    {
+      title: "Operational Cost",
+      value: `$${Number(dashboardData.kpis.totalCost).toLocaleString(undefined, { maximumFractionDigits: 2 })}`,
+      description: "Total logistics expense",
+      icon: TrendingDown,
+      color: "text-rose-500 bg-rose-500/10",
+    },
+    {
+      title: "Revenue per Trip",
+      value: `$${Number(dashboardData.kpis.totalRevenue / (dashboardData.recentTrips.length || 1)).toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+      description: "Average yield per dispatch",
+      icon: CircleDollarSign,
+      color: "text-violet-500 bg-violet-500/10",
+    },
+  ]
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-end">
+        <a
+          href="/api/reports/export/csv"
+          download
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-semibold whitespace-nowrap transition-colors outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs"
+        >
+          <Download className="h-4 w-4" />
+          <span>Export CSV</span>
+        </a>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {kpisList.map((kpi, idx) => {
+          const IconComp = kpi.icon
+          return (
+            <Card
+              key={idx}
+              className="bg-card border-border shadow-2xs hover:shadow-xs transition-shadow duration-200"
+            >
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  {kpi.title}
+                </CardTitle>
+                <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg", kpi.color)}>
+                  <IconComp className="h-4.5 w-4.5" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-card-foreground tracking-tight">{kpi.value}</div>
+                <p className="text-[10px] text-muted-foreground mt-0.5 leading-normal">{kpi.description}</p>
+              </CardContent>
+            </Card>
+          )
+        })}
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="lg:col-span-4 bg-card border-border flex flex-col justify-between">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <LineChart className="h-5 w-5 text-primary" />
+              <CardTitle className="text-card-foreground text-lg">Revenue vs Operational Cost</CardTitle>
+            </div>
+            <p className="text-xs text-muted-foreground">Monthly analytics compared side-by-side</p>
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col justify-end pt-4 pb-6">
+            <RevenueCostChart monthlyData={analytics.monthlyData} />
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-3 bg-card border-border flex flex-col">
+          <CardHeader>
+            <CardTitle className="text-card-foreground text-lg">Operational Cost Allocation</CardTitle>
+            <p className="text-xs text-muted-foreground">Breakdown of operational spend</p>
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col justify-between pb-6">
+            <CostAllocationChart costBreakdown={analytics.costBreakdown} />
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}

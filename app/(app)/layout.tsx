@@ -13,6 +13,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { UserNav } from "@/components/user-nav"
+import { ActiveRouteTitle } from "@/components/active-route-title"
 import Link from "next/link"
 import {
   LayoutDashboard,
@@ -132,9 +133,7 @@ export default async function AppLayout({
           <header className="flex h-14 items-center gap-4 border-b border-border bg-card px-4 md:px-6">
             <SidebarTrigger className="h-8 w-8" />
             <div className="min-w-0 flex-1">
-              <h2 className="truncate text-sm font-semibold text-foreground">
-                Transit Operations Platform
-              </h2>
+              <ActiveRouteTitle />
             </div>
           </header>
           <main className="flex-1 overflow-auto p-4 md:p-6">{children}</main>
