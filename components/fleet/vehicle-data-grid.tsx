@@ -54,7 +54,9 @@ export function VehicleDataGrid({
           <DataTableColumnHeader column={column} label="Name/Model" />
         ),
         cell: ({ row }) => (
-          <span className="text-xs text-foreground">{row.getValue("name")}</span>
+          <span className="text-xs text-foreground">
+            {row.getValue("name")}
+          </span>
         ),
       },
       {
@@ -63,7 +65,9 @@ export function VehicleDataGrid({
           <DataTableColumnHeader column={column} label="Type" />
         ),
         cell: ({ row }) => (
-          <span className="text-xs text-foreground">{row.getValue("type")}</span>
+          <span className="text-xs text-foreground">
+            {row.getValue("type")}
+          </span>
         ),
       },
       {
@@ -105,7 +109,9 @@ export function VehicleDataGrid({
           <DataTableColumnHeader column={column} label="Status" />
         ),
         cell: ({ row }) => (
-          <VehicleStatusBadge status={row.getValue("status") as VehicleStatus} />
+          <VehicleStatusBadge
+            status={row.getValue("status") as VehicleStatus}
+          />
         ),
       },
     ]

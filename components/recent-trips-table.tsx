@@ -56,7 +56,7 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
           <DataTableColumnHeader
             column={column}
             label="Trip ID"
-            className="text-xs font-semibold uppercase tracking-wide"
+            className="text-xs font-semibold tracking-wide uppercase"
           />
         ),
         cell: ({ row }) => (
@@ -72,11 +72,13 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
           <DataTableColumnHeader
             column={column}
             label="Route"
-            className="text-xs font-semibold uppercase tracking-wide"
+            className="text-xs font-semibold tracking-wide uppercase"
           />
         ),
         cell: ({ row }) => (
-          <span className="text-xs text-foreground">{row.getValue("route")}</span>
+          <span className="text-xs text-foreground">
+            {row.getValue("route")}
+          </span>
         ),
       },
       {
@@ -86,7 +88,7 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
           <DataTableColumnHeader
             column={column}
             label="Vehicle"
-            className="text-xs font-semibold uppercase tracking-wide"
+            className="text-xs font-semibold tracking-wide uppercase"
           />
         ),
         cell: ({ row }) => (
@@ -101,7 +103,7 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
           <DataTableColumnHeader
             column={column}
             label="Driver"
-            className="text-xs font-semibold uppercase tracking-wide"
+            className="text-xs font-semibold tracking-wide uppercase"
           />
         ),
         cell: ({ row }) => (
@@ -116,7 +118,7 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
           <DataTableColumnHeader
             column={column}
             label="Revenue"
-            className="text-xs font-semibold uppercase tracking-wide"
+            className="text-xs font-semibold tracking-wide uppercase"
           />
         ),
         cell: ({ row }) => (
@@ -135,7 +137,7 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
           <DataTableColumnHeader
             column={column}
             label="Status"
-            className="text-xs font-semibold uppercase tracking-wide"
+            className="text-xs font-semibold tracking-wide uppercase"
           />
         ),
         cell: ({ row }) => {
@@ -144,7 +146,7 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
             <Badge
               variant="outline"
               className={cn(
-                "rounded border px-2 py-0.5 text-xs font-semibold uppercase tracking-wide",
+                "rounded border px-2 py-0.5 text-xs font-semibold tracking-wide uppercase",
                 statusColors[status] || "bg-muted text-muted-foreground"
               )}
             >
