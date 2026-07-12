@@ -4,6 +4,7 @@ import {
   optionalNonNegativeNumber,
   optionalText,
   requiredPositiveInt,
+  requiredPositiveNumber,
   requiredText,
 } from "@/lib/zod-fields"
 
@@ -56,10 +57,7 @@ export const tripQuerySchema = z.object({
 
 export const completeTripSchema = z.object({
   actualOdometerKm: requiredPositiveInt("Final odometer"),
-  fuelConsumedLiters: z
-    .number({ error: "Fuel consumed is required" })
-    .refine((value) => !Number.isNaN(value), "Fuel consumed is required")
-    .positive("Fuel consumed must be greater than 0"),
+  fuelConsumedLiters: requiredPositiveNumber("Fuel consumed"),
   revenue: optionalNonNegativeNumber("Revenue"),
 })
 
