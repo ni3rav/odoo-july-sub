@@ -5,9 +5,39 @@ import { useTheme } from "next-themes"
 import { createTheme } from "@mui/material/styles"
 import type {} from "@mui/x-data-grid/themeAugmentation"
 
+// Hex equivalents of the oklch tokens in app/globals.css — MUI's palette
+// computes derived shades (light/dark/contrastText) and contrast ratios by
+// parsing the color value in JS, which can't resolve a CSS var() reference.
+// Keep these in sync with app/globals.css's :root / .dark blocks.
+const PALETTE_HEX = {
+  light: {
+    background: "#FDFEFF",
+    card: "#FFFFFF",
+    foreground: "#1E293B",
+    mutedForeground: "#64748B",
+    border: "#E2E8F0",
+    primary: "#2563EB",
+    primaryForeground: "#FFFFFF",
+    accent: "#E3ECFD",
+    muted: "#F1F5F9",
+  },
+  dark: {
+    background: "#0F172A",
+    card: "#111B31",
+    foreground: "#F8FAFC",
+    mutedForeground: "#94A3B8",
+    border: "#242F3E",
+    primary: "#3B82F6",
+    primaryForeground: "#FFFFFF",
+    accent: "#1E40AF",
+    muted: "#334155",
+  },
+} as const
+
 export function useDataGridTheme() {
   const { resolvedTheme } = useTheme()
   const mode = resolvedTheme === "dark" ? "dark" : "light"
+  const hex = PALETTE_HEX[mode]
 
   return React.useMemo(
     () =>
@@ -15,23 +45,23 @@ export function useDataGridTheme() {
         palette: {
           mode,
           background: {
-            default: "var(--background)",
-            paper: "var(--card)",
+            default: hex.background,
+            paper: hex.card,
           },
           text: {
-            primary: "var(--foreground)",
-            secondary: "var(--muted-foreground)",
+            primary: hex.foreground,
+            secondary: hex.mutedForeground,
           },
-          divider: "var(--border)",
+          divider: hex.border,
           primary: {
-            main: "var(--primary)",
-            contrastText: "var(--primary-foreground)",
+            main: hex.primary,
+            contrastText: hex.primaryForeground,
           },
           action: {
-            hover: "var(--accent)",
-            selected: "var(--accent)",
-            disabledBackground: "var(--muted)",
-            disabled: "var(--muted-foreground)",
+            hover: hex.accent,
+            selected: hex.accent,
+            disabledBackground: hex.muted,
+            disabled: hex.mutedForeground,
           },
         },
         shape: { borderRadius: 0 },
@@ -79,6 +109,6 @@ export function useDataGridTheme() {
           },
         },
       }),
-    [mode]
+    [mode, hex]
   )
 }
