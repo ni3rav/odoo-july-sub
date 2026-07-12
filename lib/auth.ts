@@ -10,4 +10,13 @@ export const auth = betterAuth({
   basePath: "/api/auth",
   emailAndPassword: { enabled: true },
   secret: env.BETTER_AUTH_SECRET,
+  user: {
+    additionalFields: {
+      roleId: {
+        type: "string",
+        required: false,
+        input: false,
+      },
+    },
+  },
 })

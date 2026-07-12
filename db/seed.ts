@@ -1,12 +1,6 @@
 import { eq } from "drizzle-orm"
 import { db } from "@/db"
-import {
-  driver,
-  permission,
-  role,
-  rolePermission,
-  vehicle,
-} from "@/db/schema"
+import { driver, permission, role, rolePermission, vehicle } from "@/db/schema"
 import {
   DEFAULT_ROLE_PERMISSION_MATRIX,
   flattenMatrix,
@@ -28,14 +22,11 @@ async function seedRoles() {
   const roleIds = new Map<RoleSlug, string>()
 
   for (const slug of ROLE_SLUGS) {
-    const roleId = id()
-    roleIds.set(slug, roleId)
-
     const { error } = await tryCatch(
       db
         .insert(role)
         .values({
-          id: roleId,
+          id: id(),
           name: ROLE_NAMES[slug],
           slug,
         })
@@ -43,53 +34,36 @@ async function seedRoles() {
     )
 
     if (error) {
-      const { data: existing } = await tryCatch(
-        db.select().from(role).where(eq(role.slug, slug)).limit(1)
-      )
-      if (existing?.[0]) {
-        roleIds.set(slug, existing[0].id)
-        continue
-      }
       throw error
     }
+
+    const { data: existing, error: fetchError } = await tryCatch(
+      db.select().from(role).where(eq(role.slug, slug)).limit(1)
+    )
+
+    if (fetchError || !existing?.[0]) {
+      throw fetchError ?? new Error(`Failed to load role ${slug}`)
+    }
+
+    roleIds.set(slug, existing[0].id)
   }
 
   return roleIds
 }
 
 async function seedPermissions() {
-  const permissionIds = new Map<string, string>()
-
   for (const permModule of PERMISSION_MODULES) {
     for (const action of PERMISSION_ACTIONS) {
-      const permissionId = id()
-      const key = `${permModule}:${action}`
-      permissionIds.set(key, permissionId)
-
       const { error } = await tryCatch(
         db
           .insert(permission)
-          .values({ id: permissionId, module: permModule, action })
+          .values({ id: id(), module: permModule, action })
           .onConflictDoNothing({
             target: [permission.module, permission.action],
           })
       )
 
       if (error) {
-        const { data: existing } = await tryCatch(
-          db
-            .select()
-            .from(permission)
-            .where(eq(permission.module, permModule))
-            .limit(PERMISSION_ACTIONS.length)
-        )
-        const match = existing?.find(
-          (row) => row.module === permModule && row.action === action
-        )
-        if (match) {
-          permissionIds.set(key, match.id)
-          continue
-        }
         throw error
       }
     }
@@ -102,6 +76,8 @@ async function seedPermissions() {
   if (loadError || !allPermissions) {
     throw loadError ?? new Error("Failed to load permissions")
   }
+
+  const permissionIds = new Map<string, string>()
 
   for (const row of allPermissions) {
     permissionIds.set(`${row.module}:${row.action}`, row.id)
