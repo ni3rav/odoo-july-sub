@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
+import { AppLogo } from "@/components/app-logo"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -14,7 +15,6 @@ import { signUp } from "@/lib/auth-client"
 import { type SignUpInput, signUpSchema } from "@/modules/auth"
 import { useState } from "react"
 import { Spinner } from "@/components/ui/spinner"
-import { ShieldAlert } from "lucide-react"
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -50,21 +50,7 @@ export default function SignUpPage() {
   return (
     <div className="grid min-h-screen w-full lg:grid-cols-2">
       <div className="flex flex-col justify-between bg-background p-6 md:p-10">
-        <div className="flex items-center gap-2 text-lg font-semibold text-primary">
-          <div className="flex size-12 items-center justify-center overflow-hidden rounded-lg p-1">
-            <img
-              src="/light-icon-app.png"
-              alt="TransitOps Logo"
-              className="block h-full w-full object-contain dark:hidden"
-            />
-            <img
-              src="/dark-icon-app.png"
-              alt="TransitOps Logo"
-              className="hidden h-full w-full object-contain dark:block"
-            />
-          </div>
-          <span>TransitOps</span>
-        </div>
+        <AppLogo />
 
         <div className="mx-auto my-8 w-full max-w-md space-y-8">
           <div className="space-y-2">
