@@ -12,15 +12,17 @@ export default async function FleetPage() {
 
   if (!has("view")) {
     return (
-      <div className="p-6 text-sm text-muted-foreground">
+      <div className="text-sm text-muted-foreground">
         You don&apos;t have permission to view the fleet registry.
       </div>
     )
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-semibold">Fleet</h1>
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold tracking-tight text-foreground">
+        Fleet
+      </h1>
       <FleetWorkspace
         canCreate={has("create")}
         canEdit={has("edit")}
