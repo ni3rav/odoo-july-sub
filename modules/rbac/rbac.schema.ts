@@ -25,3 +25,9 @@ export type RoleSlugInput = z.infer<typeof roleSlugSchema>
 export type UpdatePermissionMatrixInput = z.infer<
   typeof updatePermissionMatrixSchema
 >
+
+export const createRoleSchema = z.object({
+  name: z.string().min(1, "Role name is required"),
+})
+
+export type CreateRoleInput = z.infer<typeof createRoleSchema>

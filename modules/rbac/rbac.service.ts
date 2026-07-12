@@ -111,3 +111,56 @@ export async function updatePermissionGrants(
 
   return getPermissionMatrix()
 }
+
+export async function createRole(name: string) {
+  const slug = name.replace(/[^a-zA-Z0-9]/g, "")
+  if (!slug) {
+    return { error: "Invalid role name. Must contain alphanumeric characters." }
+  }
+
+  // Check if role slug already exists
+  const { data: existing, error: checkError } = await tryCatch(
+    db.select().from(role).where(eq(role.slug, slug)).limit(1)
+  )
+  if (checkError) {
+    return { error: checkError.message }
+  }
+  if (existing && existing.length > 0) {
+    return { error: `A role with slug '${slug}' already exists.` }
+  }
+
+  const roleId = crypto.randomUUID()
+
+  const result = await tryCatch(
+    db.transaction(async (tx) => {
+      // 1. Insert role
+      await tx.insert(role).values({
+        id: roleId,
+        name,
+        slug,
+      })
+
+      // 2. Select all permissions
+      const allPerms = await tx.select().from(permission)
+
+      // 3. Insert rolePermission defaults (all false)
+      if (allPerms.length > 0) {
+        await tx.insert(rolePermission).values(
+          allPerms.map((p) => ({
+            roleId,
+            permissionId: p.id,
+            granted: false,
+          }))
+        )
+      }
+
+      return { id: roleId, name, slug }
+    })
+  )
+
+  if (result.error) {
+    return { error: result.error.message }
+  }
+
+  return { data: result.data }
+}
