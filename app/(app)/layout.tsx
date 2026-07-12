@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { requireSession } from "@/lib/auth-guard"
 import { getUserPermissions } from "@/modules/rbac/rbac.service"
 import { AppLogo } from "@/components/app-logo"
