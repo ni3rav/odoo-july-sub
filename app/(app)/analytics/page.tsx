@@ -12,7 +12,7 @@ import {
   Download,
   Percent,
   TrendingDown,
-  CircleDollarSign,
+  IndianRupee,
   Fuel,
   LineChart,
   Trophy,
@@ -41,16 +41,16 @@ export default async function AnalyticsPage() {
     },
     {
       title: "Operational Cost",
-      value: `$${Number(dashboardData.kpis.totalCost).toLocaleString(undefined, { maximumFractionDigits: 2 })}`,
+      value: `₹${Number(dashboardData.kpis.totalCost).toLocaleString(undefined, { maximumFractionDigits: 2 })}`,
       description: "Total logistics expense",
       icon: TrendingDown,
       color: "text-rose-500 bg-rose-500/10",
     },
     {
       title: "Revenue per Trip",
-      value: `$${Number(dashboardData.kpis.totalRevenue / (dashboardData.recentTrips.length || 1)).toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+      value: `₹${Number(dashboardData.kpis.totalRevenue / (dashboardData.recentTrips.length || 1)).toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
       description: "Average yield per dispatch",
-      icon: CircleDollarSign,
+      icon: IndianRupee,
       color: "text-violet-500 bg-violet-500/10",
     },
   ]

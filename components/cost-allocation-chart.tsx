@@ -91,7 +91,7 @@ export function CostAllocationChart({
                 </span>
               </div>
               <span className="text-[11px] font-semibold text-card-foreground">
-                ${Number(item.value).toLocaleString()}
+                ₹{Number(item.value).toLocaleString()}
               </span>
               <span className="mt-0.5 text-[9px] text-muted-foreground">
                 {Math.round(pct)}%

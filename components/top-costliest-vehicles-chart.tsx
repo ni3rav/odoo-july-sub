@@ -44,7 +44,7 @@ export function TopCostliestVehiclesChart({
             type="number"
             tickLine={false}
             axisLine={false}
-            tickFormatter={(value) => `$${value}`}
+            tickFormatter={(value) => `₹${value}`}
           />
           <YAxis
             dataKey="label"
