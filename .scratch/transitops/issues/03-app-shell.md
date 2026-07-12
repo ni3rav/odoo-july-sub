@@ -4,10 +4,14 @@
 
 **Blocked by:** 02 — Schema and RBAC foundation
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] `app/(app)/layout.tsx` with dark sidebar nav (Dashboard, Fleet, Drivers, Trips, Maintenance, Fuel & Expenses, Analytics, Settings)
-- [ ] Top bar with user avatar/menu; nav items gated by permissions
-- [ ] `requireSession()` on all authenticated pages
-- [ ] Sign-in page redesigned to mockup split layout; redirect to `/dashboard` on success
-- [ ] shadcn components added: sidebar, card, badge, avatar, dropdown-menu, separator
+- [x] `app/(app)/layout.tsx` with dark sidebar nav (Dashboard, Fleet, Drivers, Trips, Maintenance, Fuel & Expenses, Analytics, Settings)
+- [x] Top bar with user avatar/menu; nav items gated by permissions
+- [x] `requireSession()` on all authenticated pages
+- [x] Sign-in page redesigned to mockup split layout; redirect to `/dashboard` on success
+- [x] shadcn components added: sidebar, card, badge, avatar, dropdown-menu, separator
+
+## Answer
+
+App shell, Sidebar layout, gated navigation, user nav dropdown, and split-layout auth screen with quick login role buttons are fully implemented and verified.
