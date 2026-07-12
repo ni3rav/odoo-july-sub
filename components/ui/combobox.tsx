@@ -11,7 +11,11 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 
 export type ComboboxOption = {
@@ -70,12 +74,7 @@ export function Combobox({
           />
         }
       >
-        <span
-          className={cn(
-            "truncate",
-            !selected && "text-muted-foreground"
-          )}
-        >
+        <span className={cn("truncate", !selected && "text-muted-foreground")}>
           {selected ? selected.label : placeholder}
         </span>
         <ChevronDownIcon className="size-4 shrink-0 opacity-50" />
