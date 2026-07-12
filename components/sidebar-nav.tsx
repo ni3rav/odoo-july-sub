@@ -20,7 +20,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 
-const ICONS: Record<string, LucideIcon> = {
+export const NAV_ICONS: Record<string, LucideIcon> = {
   "/dashboard": LayoutDashboard,
   "/fleet": Truck,
   "/drivers": Users,
@@ -41,7 +41,7 @@ export function SidebarNav({ items }: SidebarNavProps) {
   return (
     <SidebarMenu>
       {items.map((item) => {
-        const IconComp = ICONS[item.href] ?? LayoutDashboard
+        const IconComp = NAV_ICONS[item.href] ?? LayoutDashboard
         const isActive =
           pathname === item.href || pathname.startsWith(`${item.href}/`)
         return (
