@@ -5,7 +5,7 @@ import {
   type GridColDef,
   type GridRenderCellParams,
 } from "@mui/x-data-grid"
-import { ThemeProvider, createTheme } from "@mui/material/styles"
+import { ThemeProvider } from "@mui/material/styles"
 import { Button } from "@/components/ui/button"
 import { VehicleStatusBadge } from "@/components/fleet/vehicle-status-badge"
 import { VehicleFormDialog } from "@/components/fleet/vehicle-form-dialog"
@@ -13,9 +13,8 @@ import {
   useRetireVehicleMutation,
   type VehicleRecord,
 } from "@/components/fleet/fleet-queries"
+import { useDataGridTheme } from "@/components/fleet/use-data-grid-theme"
 import type { VehicleStatus } from "@/db/schema/constants"
-
-const theme = createTheme()
 
 type VehicleDataGridProps = {
   vehicles: VehicleRecord[]
@@ -31,6 +30,7 @@ export function VehicleDataGrid({
   canDelete,
 }: VehicleDataGridProps) {
   const retireMutation = useRetireVehicleMutation()
+  const theme = useDataGridTheme()
 
   const columns: GridColDef<VehicleRecord>[] = [
     {
@@ -106,19 +106,17 @@ export function VehicleDataGrid({
 
   return (
     <ThemeProvider theme={theme}>
-      <div className="rounded-md border">
-        <DataGrid
-          rows={vehicles}
-          columns={columns}
-          loading={loading}
-          autoHeight
-          disableRowSelectionOnClick
-          pageSizeOptions={[10, 25, 50]}
-          initialState={{
-            pagination: { paginationModel: { pageSize: 10 } },
-          }}
-        />
-      </div>
+      <DataGrid
+        rows={vehicles}
+        columns={columns}
+        loading={loading}
+        autoHeight
+        disableRowSelectionOnClick
+        pageSizeOptions={[10, 25, 50]}
+        initialState={{
+          pagination: { paginationModel: { pageSize: 10 } },
+        }}
+      />
     </ThemeProvider>
   )
 }
