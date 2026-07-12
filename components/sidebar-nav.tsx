@@ -7,6 +7,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { cn } from "@/lib/utils"
 import {
   LayoutDashboard,
   Truck,
@@ -46,10 +47,23 @@ export function SidebarNav({ items }: SidebarNavProps) {
         return (
           <SidebarMenuItem key={item.href}>
             <SidebarMenuButton
-              isActive={isActive}
               render={<Link href={item.href} />}
+              isActive={isActive}
+              className={cn(
+                "transition-all duration-200 group",
+                isActive
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold shadow-xs"
+                  : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              )}
             >
-              <IconComp className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <IconComp
+                className={cn(
+                  "h-4 w-4 shrink-0 transition-colors",
+                  isActive
+                    ? "text-primary"
+                    : "text-muted-foreground group-hover/menu-button:text-primary"
+                )}
+              />
               <span>{item.label}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
