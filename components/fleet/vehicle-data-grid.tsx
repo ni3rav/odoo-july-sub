@@ -1,11 +1,16 @@
 "use client"
 
+import * as React from "react"
 import {
-  DataGrid,
-  type GridColDef,
-  type GridRenderCellParams,
-} from "@mui/x-data-grid"
-import { ThemeProvider } from "@mui/material/styles"
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type ColumnDef,
+} from "@tanstack/react-table"
+import { DataTable } from "@/components/data-table/data-table"
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
+import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton"
 import { Button } from "@/components/ui/button"
 import { VehicleStatusBadge } from "@/components/fleet/vehicle-status-badge"
 import { VehicleFormDialog } from "@/components/fleet/vehicle-form-dialog"
@@ -13,7 +18,6 @@ import {
   useRetireVehicleMutation,
   type VehicleRecord,
 } from "@/components/fleet/fleet-queries"
-import { useDataGridTheme } from "@/components/fleet/use-data-grid-theme"
 import type { VehicleStatus } from "@/db/schema/constants"
 
 type VehicleDataGridProps = {
@@ -30,93 +34,147 @@ export function VehicleDataGrid({
   canDelete,
 }: VehicleDataGridProps) {
   const retireMutation = useRetireVehicleMutation()
-  const theme = useDataGridTheme()
 
-  const columns: GridColDef<VehicleRecord>[] = [
-    {
-      field: "registrationNumber",
-      headerName: "Reg. No. (Unique)",
-      flex: 1,
-      minWidth: 150,
-    },
-    { field: "name", headerName: "Name/Model", flex: 1, minWidth: 120 },
-    { field: "type", headerName: "Type", width: 100 },
-    {
-      field: "maxLoadCapacityKg",
-      headerName: "Capacity (kg)",
-      width: 130,
-      type: "number",
-    },
-    {
-      field: "odometerKm",
-      headerName: "Odometer (km)",
-      width: 140,
-      type: "number",
-    },
-    {
-      field: "acquisitionCost",
-      headerName: "Acq. Cost",
-      width: 130,
-      type: "number",
-    },
-    {
-      field: "status",
-      headerName: "Status",
-      width: 120,
-      renderCell: (params: GridRenderCellParams<VehicleRecord>) => (
-        <VehicleStatusBadge status={params.value as VehicleStatus} />
-      ),
-    },
-  ]
+  const columns = React.useMemo<ColumnDef<VehicleRecord>[]>(() => {
+    const baseColumns: ColumnDef<VehicleRecord>[] = [
+      {
+        accessorKey: "registrationNumber",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} label="Reg. No. (Unique)" />
+        ),
+        cell: ({ row }) => (
+          <span className="text-xs text-foreground">
+            {row.getValue("registrationNumber")}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "name",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} label="Name/Model" />
+        ),
+        cell: ({ row }) => (
+          <span className="text-xs text-foreground">{row.getValue("name")}</span>
+        ),
+      },
+      {
+        accessorKey: "type",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} label="Type" />
+        ),
+        cell: ({ row }) => (
+          <span className="text-xs text-foreground">{row.getValue("type")}</span>
+        ),
+      },
+      {
+        accessorKey: "maxLoadCapacityKg",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} label="Capacity (kg)" />
+        ),
+        cell: ({ row }) => (
+          <span className="text-xs text-foreground">
+            {row.getValue("maxLoadCapacityKg")}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "odometerKm",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} label="Odometer (km)" />
+        ),
+        cell: ({ row }) => (
+          <span className="text-xs text-foreground">
+            {row.getValue("odometerKm")}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "acquisitionCost",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} label="Acq. Cost" />
+        ),
+        cell: ({ row }) => (
+          <span className="text-xs text-foreground">
+            {row.getValue("acquisitionCost")}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} label="Status" />
+        ),
+        cell: ({ row }) => (
+          <VehicleStatusBadge status={row.getValue("status") as VehicleStatus} />
+        ),
+      },
+    ]
 
-  if (canEdit || canDelete) {
-    columns.push({
-      field: "actions",
-      headerName: "",
-      width: canEdit && canDelete ? 190 : 110,
-      sortable: false,
-      filterable: false,
-      disableColumnMenu: true,
-      renderCell: (params: GridRenderCellParams<VehicleRecord>) => (
-        <div className="flex items-center gap-2">
-          {canEdit && (
-            <VehicleFormDialog
-              vehicle={params.row}
-              trigger={
-                <Button size="sm" variant="outline">
-                  Edit
-                </Button>
-              }
-            />
-          )}
-          {canDelete && params.row.status !== "Retired" && (
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={retireMutation.isPending}
-              onClick={() => retireMutation.mutate(params.row.id)}
-            >
-              Retire
-            </Button>
-          )}
-        </div>
-      ),
-    })
+    if (canEdit || canDelete) {
+      baseColumns.push({
+        id: "actions",
+        enableSorting: false,
+        header: () => null,
+        cell: ({ row }) => (
+          <div className="flex items-center gap-2">
+            {canEdit && (
+              <VehicleFormDialog
+                vehicle={row.original}
+                trigger={
+                  <Button size="sm" variant="outline">
+                    Edit
+                  </Button>
+                }
+              />
+            )}
+            {canDelete && row.original.status !== "Retired" && (
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={retireMutation.isPending}
+                onClick={() => retireMutation.mutate(row.original.id)}
+              >
+                Retire
+              </Button>
+            )}
+          </div>
+        ),
+      })
+    }
+
+    return baseColumns
+  }, [canDelete, canEdit, retireMutation])
+
+  const table = useReactTable({
+    data: vehicles,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getRowId: (row) => row.id,
+    enableRowSelection: false,
+    initialState: {
+      pagination: { pageSize: 10 },
+    },
+  })
+
+  if (loading) {
+    return (
+      <DataTableSkeleton
+        columnCount={columns.length}
+        rowCount={10}
+        withViewOptions={false}
+        filterCount={0}
+      />
+    )
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <DataGrid
-        rows={vehicles}
-        columns={columns}
-        loading={loading}
-        autoHeight
-        disableRowSelectionOnClick
-        pageSizeOptions={[10, 25, 50]}
-        initialState={{
-          pagination: { paginationModel: { pageSize: 10 } },
-        }}
-      />
-    </ThemeProvider>
+    <DataTable
+      table={table}
+      pageSizeOptions={[10, 25, 50]}
+      showSelectionSummary={false}
+      className="rounded-xl border border-border bg-card"
+    />
   )
 }

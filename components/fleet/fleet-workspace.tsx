@@ -1,20 +1,12 @@
 "use client"
 
 import * as React from "react"
-import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { VehicleFiltersBar } from "@/components/fleet/vehicle-filters-bar"
 import { VehicleFormDialog } from "@/components/fleet/vehicle-form-dialog"
+import { VehicleDataGrid } from "@/components/fleet/vehicle-data-grid"
 import { useVehiclesQuery } from "@/components/fleet/fleet-queries"
 import type { VehicleQueryInput } from "@/modules/fleet"
-
-const VehicleDataGrid = dynamic(
-  () =>
-    import("@/components/fleet/vehicle-data-grid").then(
-      (mod) => mod.VehicleDataGrid
-    ),
-  { ssr: false }
-)
 
 type FleetWorkspaceProps = {
   canCreate: boolean

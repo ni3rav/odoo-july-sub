@@ -22,6 +22,7 @@
     "hooks": "@/hooks"
   },
   "registries": {
-    "@shadcnuikit": "https://shadcnuikit.com/r/{name}.json"
+    "@shadcnuikit": "https://shadcnuikit.com/r/{name}.json",
+    "@diceui": "https://diceui.com/r/{name}.json"
   }
 }

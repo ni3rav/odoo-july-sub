@@ -1,7 +1,15 @@
 "use client"
 
 import * as React from "react"
-import { DataGrid, type GridColDef } from "@mui/x-data-grid"
+import {
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type ColumnDef,
+} from "@tanstack/react-table"
+import { DataTable } from "@/components/data-table/data-table"
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
@@ -31,132 +39,143 @@ const statusColors: Record<string, string> = {
 }
 
 export function RecentTripsTable({ trips }: RecentTripsTableProps) {
-  const columns: GridColDef[] = [
-    {
-      field: "orderId",
-      headerName: "Trip ID",
-      flex: 1,
-      minWidth: 100,
-      renderCell: (params) => (
-        <span className="text-xs font-semibold text-foreground">
-          {params.value}
-        </span>
-      ),
-    },
-    {
-      field: "route",
-      headerName: "Route",
-      flex: 2,
-      minWidth: 180,
-      valueGetter: (value, row) => `${row.source} → ${row.destination}`,
-      renderCell: (params) => (
-        <span className="text-xs text-foreground">{params.value}</span>
-      ),
-    },
-    {
-      field: "vehicle",
-      headerName: "Vehicle",
-      flex: 1.5,
-      minWidth: 140,
-      valueGetter: (value, row) => `${row.vehicleName} (${row.vehicleReg})`,
-      renderCell: (params) => (
-        <span className="text-xs text-foreground">{params.value}</span>
-      ),
-    },
-    {
-      field: "driverName",
-      headerName: "Driver",
-      flex: 1.2,
-      minWidth: 110,
-      renderCell: (params) => (
-        <span className="text-xs text-foreground">{params.value}</span>
-      ),
-    },
-    {
-      field: "revenue",
-      headerName: "Revenue",
-      flex: 1,
-      minWidth: 90,
-      renderCell: (params) => (
-        <span className="text-xs font-medium text-foreground">
-          $
-          {Number(params.value).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
-        </span>
-      ),
-    },
-    {
-      field: "status",
-      headerName: "Status",
-      flex: 1,
-      minWidth: 100,
-      renderCell: (params) => (
-        <Badge
-          className={cn(
-            "rounded border px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase",
-            statusColors[params.value] || "bg-muted text-muted-foreground"
-          )}
-        >
-          {params.value}
-        </Badge>
-      ),
-    },
-  ]
+  const data = React.useMemo(
+    () =>
+      trips.map((trip) => ({
+        ...trip,
+        id: trip.id || trip.orderId,
+      })),
+    [trips]
+  )
 
-  const formattedRows = trips.map((t) => ({
-    ...t,
-    id: t.id || t.orderId,
-  }))
+  const columns = React.useMemo<ColumnDef<(typeof data)[number]>[]>(
+    () => [
+      {
+        accessorKey: "orderId",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            label="Trip ID"
+            className="text-xs font-semibold uppercase tracking-wide"
+          />
+        ),
+        cell: ({ row }) => (
+          <span className="text-xs font-semibold text-foreground">
+            {row.getValue("orderId")}
+          </span>
+        ),
+      },
+      {
+        id: "route",
+        accessorFn: (row) => `${row.source} → ${row.destination}`,
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            label="Route"
+            className="text-xs font-semibold uppercase tracking-wide"
+          />
+        ),
+        cell: ({ row }) => (
+          <span className="text-xs text-foreground">{row.getValue("route")}</span>
+        ),
+      },
+      {
+        id: "vehicle",
+        accessorFn: (row) => `${row.vehicleName} (${row.vehicleReg})`,
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            label="Vehicle"
+            className="text-xs font-semibold uppercase tracking-wide"
+          />
+        ),
+        cell: ({ row }) => (
+          <span className="text-xs text-foreground">
+            {row.getValue("vehicle")}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "driverName",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            label="Driver"
+            className="text-xs font-semibold uppercase tracking-wide"
+          />
+        ),
+        cell: ({ row }) => (
+          <span className="text-xs text-foreground">
+            {row.getValue("driverName")}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "revenue",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            label="Revenue"
+            className="text-xs font-semibold uppercase tracking-wide"
+          />
+        ),
+        cell: ({ row }) => (
+          <span className="text-xs font-medium text-foreground">
+            $
+            {Number(row.getValue("revenue")).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            label="Status"
+            className="text-xs font-semibold uppercase tracking-wide"
+          />
+        ),
+        cell: ({ row }) => {
+          const status = row.getValue("status") as string
+          return (
+            <Badge
+              variant="outline"
+              className={cn(
+                "rounded border px-2 py-0.5 text-xs font-semibold uppercase tracking-wide",
+                statusColors[status] || "bg-muted text-muted-foreground"
+              )}
+            >
+              {status}
+            </Badge>
+          )
+        },
+      },
+    ],
+    []
+  )
+
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getRowId: (row) => row.id,
+    enableRowSelection: false,
+    initialState: {
+      pagination: { pageSize: 5 },
+    },
+  })
 
   return (
-    <div
-      className="w-full overflow-hidden rounded-xl border border-border bg-card"
-      style={{ height: 350 }}
-    >
-      <DataGrid
-        rows={formattedRows}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: { pageSize: 5 },
-          },
-        }}
-        pageSizeOptions={[5, 10]}
-        disableRowSelectionOnClick
-        sx={{
-          border: 0,
-          fontFamily: "var(--font-sans), sans-serif",
-          "& .MuiDataGrid-main": {
-            color: "var(--foreground)",
-          },
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: "var(--muted)",
-            borderBottom: "1px solid var(--border)",
-            fontSize: "0.75rem",
-            fontWeight: 600,
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-          },
-          "& .MuiDataGrid-cell": {
-            borderBottom: "1px solid var(--border)",
-            display: "flex",
-            alignItems: "center",
-          },
-          "& .MuiDataGrid-row:hover": {
-            backgroundColor: "var(--accent)",
-          },
-          "& .MuiTablePagination-root": {
-            color: "var(--muted-foreground)",
-            fontSize: "0.75rem",
-          },
-          "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
-            {
-              fontSize: "0.75rem",
-            },
-        }}
-      />
-    </div>
+    <DataTable
+      table={table}
+      pageSizeOptions={[5, 10]}
+      showSelectionSummary={false}
+      className="max-h-96 overflow-hidden rounded-xl border border-border bg-card"
+    />
   )
 }
