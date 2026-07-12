@@ -7,10 +7,6 @@ const serverSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]),
 })
 
-const clientSchema = z.object({
-  NEXT_PUBLIC_APP_URL: z.url(),
-})
-
 function validateEnv() {
   const parsed = serverSchema.safeParse(process.env)
   if (!parsed.success) {
@@ -23,22 +19,6 @@ function validateEnv() {
   return parsed.data
 }
 
-function validateClientEnv() {
-  const parsed = clientSchema.safeParse({
-    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
-  })
-  if (!parsed.success) {
-    const issues = parsed.error.issues
-      .map((i) => `${i.path.join(".")}: ${i.message}`)
-      .join("\n")
-    console.error("Invalid client environment variables:\n", issues)
-    throw new Error("Invalid client environment variables")
-  }
-  return parsed.data
-}
-
 export const env = validateEnv()
-export const clientEnv = validateClientEnv()
 
 export type ServerEnv = z.infer<typeof serverSchema>
-export type ClientEnv = z.infer<typeof clientSchema>
