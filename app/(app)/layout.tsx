@@ -7,10 +7,12 @@ import {
   SidebarHeader,
   SidebarInset,
   SidebarProvider,
+  SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { UserNav } from "@/components/user-nav"
 import { SidebarNav } from "@/components/sidebar-nav"
+import { SidebarHoverPeek } from "@/components/sidebar-hover-peek"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { ActiveRouteTitle } from "@/components/active-route-title"
 import Link from "next/link"
@@ -73,30 +75,32 @@ export default async function AppLayout({
       (p) => p.module === item.module && p.action === "view"
     )
   })
+  const navItems = allowedItems.map((item) => ({
+    href: item.href,
+    label: item.label,
+  }))
 
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <Sidebar className="border-r border-border bg-card">
-          <SidebarHeader className="border-b border-border p-4">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-2 text-lg font-semibold text-primary"
-            >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Truck className="h-5 w-5" />
-              </div>
-              <span>TransitOps</span>
-            </Link>
+          <SidebarHeader className="border-b border-border p-3">
+            <div className="flex items-center justify-between gap-2">
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-2 text-lg font-semibold text-primary"
+              >
+                <div className="flex w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Truck className="h-5 w-5" />
+                </div>
+                <span>TransitOps</span>
+              </Link>
+              <SidebarTrigger className="h-8 w-8" />
+            </div>
           </SidebarHeader>
 
           <SidebarContent className="p-2">
-            <SidebarNav
-              items={allowedItems.map((item) => ({
-                href: item.href,
-                label: item.label,
-              }))}
-            />
+            <SidebarNav items={navItems} />
           </SidebarContent>
 
           <SidebarFooter className="border-t border-border p-2">
@@ -107,11 +111,11 @@ export default async function AppLayout({
               <ThemeToggle />
             </div>
           </SidebarFooter>
+          <SidebarRail />
         </Sidebar>
 
         <SidebarInset className="flex flex-col bg-background">
-          <header className="flex h-14 items-center gap-4 border-b border-border bg-card px-4 md:px-6">
-            <SidebarTrigger className="h-8 w-8" />
+          <header className="gap:4 flex h-[57px] items-center border-b border-border bg-card px-4 md:px-6">
             <div className="min-w-0 flex-1">
               <ActiveRouteTitle />
             </div>
@@ -119,6 +123,7 @@ export default async function AppLayout({
           <main className="flex-1 overflow-auto p-4 md:p-6">{children}</main>
         </SidebarInset>
       </div>
+      <SidebarHoverPeek items={navItems} />
     </SidebarProvider>
   )
 }
