@@ -4,6 +4,7 @@ import * as React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { useRouter } from "next/navigation"
+import { useQueryClient } from "@tanstack/react-query"
 import { FormErrorBanner } from "@/components/form/form-error-banner"
 import { fieldErrorClassName, FormField } from "@/components/form/form-field"
 import { Button } from "@/components/ui/button"
@@ -34,6 +35,7 @@ import {
 } from "@/db/schema/constants"
 import { handleFormSubmitError } from "@/lib/handle-form-submit-error"
 import { api } from "@/lib/server"
+import { USER_PERMISSIONS_QUERY_KEY } from "@/hooks/use-user-permissions"
 import {
   updateProfileSchema,
   type UpdateProfileInput,
@@ -102,6 +104,7 @@ export function SettingsClient({
   initialMatrixError,
 }: SettingsClientProps) {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [selectedModule, setSelectedModule] =
     React.useState<PermissionModule>("fleet")
   const [savedMatrix, setSavedMatrix] = React.useState(initialMatrix)
@@ -211,6 +214,9 @@ export function SettingsClient({
       setSavedMatrix(data.matrix)
       setGrants(buildGrantState(data.matrix))
     }
+    await queryClient.invalidateQueries({
+      queryKey: USER_PERMISSIONS_QUERY_KEY,
+    })
     setMatrixMessage("Permissions saved.")
   }
 
