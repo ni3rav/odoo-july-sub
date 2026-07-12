@@ -3,11 +3,13 @@ import { authRoutes } from "@/modules/auth/auth.route"
 import { rbacRoutes } from "@/modules/rbac/rbac.route"
 import { fleetRoutes } from "@/modules/fleet/fleet.route"
 import { reportsRoutes } from "@/modules/reports/reports.route"
+import { tripsRoutes } from "@/modules/trips/trips.route"
 
 const app = new Elysia({ prefix: "/api" })
   .use(authRoutes)
   .use(rbacRoutes)
   .use(fleetRoutes)
+  .use(tripsRoutes)
   .use(reportsRoutes)
   .get("/health", () => ({ status: "ok" }))
 
