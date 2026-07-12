@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { requireSession } from "@/lib/auth-guard"
 import { getUserPermissions } from "@/modules/rbac/rbac.service"
 import { AppLogo } from "@/components/app-logo"
@@ -86,7 +85,7 @@ export default async function AppLayout({
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <Sidebar className="border-r border-border bg-card">
-          <SidebarHeader className="border-b border-border p-4">
+          <SidebarHeader className="border-b border-border">
             <Link href="/dashboard">
               <AppLogo />
             </Link>

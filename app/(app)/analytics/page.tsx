@@ -6,6 +6,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { RevenueCostChart } from "@/components/revenue-cost-chart"
 import { CostAllocationChart } from "@/components/cost-allocation-chart"
+import { TopCostliestVehiclesChart } from "@/components/top-costliest-vehicles-chart"
 import { cn } from "@/lib/utils"
 import {
   Download,
@@ -14,6 +15,7 @@ import {
   CircleDollarSign,
   Fuel,
   LineChart,
+  Trophy,
 } from "lucide-react"
 
 export default async function AnalyticsPage() {
@@ -129,6 +131,25 @@ export default async function AnalyticsPage() {
           </CardHeader>
           <CardContent className="flex flex-1 flex-col justify-between pb-6">
             <CostAllocationChart costBreakdown={analytics.costBreakdown} />
+          </CardContent>
+        </Card>
+
+        <Card className="flex flex-col border-border bg-card lg:col-span-7">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg text-card-foreground">
+                Top Costliest Vehicles
+              </CardTitle>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Cost per vehicle unit — fuel, maintenance &amp; expenses
+            </p>
+          </CardHeader>
+          <CardContent className="pt-4 pb-6">
+            <TopCostliestVehiclesChart
+              vehicles={analytics.topCostliestVehicles}
+            />
           </CardContent>
         </Card>
       </div>
