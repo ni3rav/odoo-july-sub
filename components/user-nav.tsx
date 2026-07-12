@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { LogOut, Settings, User } from "lucide-react"
+import { LogOut, Settings } from "lucide-react"
 
 interface UserNavProps {
   user: {
@@ -83,10 +83,6 @@ export function UserNav({ user }: UserNavProps) {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => router.push("/settings")}>
-          <User className="mr-2 h-4 w-4" />
-          <span>Profile</span>
-        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => router.push("/settings")}>
           <Settings className="mr-2 h-4 w-4" />
           <span>Settings</span>
