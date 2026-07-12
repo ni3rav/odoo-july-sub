@@ -16,7 +16,6 @@ import { SidebarHoverPeek } from "@/components/sidebar-hover-peek"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { ActiveRouteTitle } from "@/components/active-route-title"
 import Link from "next/link"
-import { Truck } from "lucide-react"
 
 const NAV_ITEMS = [
   {
@@ -84,19 +83,17 @@ export default async function AppLayout({
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <Sidebar className="border-r border-border bg-card">
-          <SidebarHeader className="border-b border-border p-3">
-            <div className="flex items-center justify-between gap-2">
-              <Link
-                href="/dashboard"
-                className="flex items-center gap-2 text-lg font-semibold text-primary"
-              >
-                <div className="flex w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Truck className="h-5 w-5" />
-                </div>
-                <span>TransitOps</span>
-              </Link>
-              <SidebarTrigger className="h-8 w-8" />
-            </div>
+          <SidebarHeader className="border-b border-border p-4">
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 text-lg font-semibold text-primary"
+            >
+              <div className="flex size-12 items-center justify-center rounded-lg overflow-hidden p-0.5">
+                <img src="/light-icon-app.png" alt="TransitOps Logo" className="h-full w-full object-contain block dark:hidden" />
+                <img src="/dark-icon-app.png" alt="TransitOps Logo" className="h-full w-full object-contain hidden dark:block" />
+              </div>
+              <span>TransitOps</span>
+            </Link>
           </SidebarHeader>
 
           <SidebarContent className="p-2">
