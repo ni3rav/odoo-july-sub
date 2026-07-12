@@ -4,11 +4,20 @@
 
 **Blocked by:** 04 — Vehicle registry, 05 — Driver management
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] `modules/trips` with CRUD and transition endpoints: dispatch, start-transit, complete, cancel
-- [ ] `/trips` page with 4-step stepper (Draft → Dispatched → In Transit → Completed)
-- [ ] Dispatch validation: capacity, license expiry, suspended driver, OnTrip conflicts, InShop/Retired exclusion
-- [ ] Inline error display matching mockup (e.g. "Capacity exceeded by X kg — Dispatch blocked")
-- [ ] Complete requires actual odometer and fuel consumed; restores vehicle + driver to Available
-- [ ] Cancel from Dispatched or InTransit restores vehicle + driver to Available
+- [x] `modules/trips` with CRUD and transition endpoints: dispatch, start-transit, complete, cancel
+- [x] `/trips` page with 4-step stepper (Draft → Dispatched → In Transit → Completed)
+- [x] Dispatch validation: capacity, license expiry, suspended driver, OnTrip conflicts, InShop/Retired exclusion
+- [x] Inline error display matching mockup (e.g. "Capacity exceeded by X kg — Dispatch blocked")
+- [x] Complete requires actual odometer and fuel consumed; restores vehicle + driver to Available
+- [x] Cancel from Dispatched or InTransit restores vehicle + driver to Available
+
+## Answer
+
+Trip lifecycle is implemented end to end under `/api/trips` and `/trips`. The
+dispatcher workspace supports creating draft trips, a four-step status stepper,
+dispatch preview validation with inline errors, start transit, complete with
+odometer and fuel capture, and cancel from Dispatched or In Transit. Server-side
+rules enforce capacity, license expiry, driver/vehicle availability, and
+automatic status transitions for vehicles and drivers.

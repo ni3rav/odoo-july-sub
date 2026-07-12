@@ -3,6 +3,8 @@
 import * as React from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { FormErrorBanner } from "@/components/form/form-error-banner"
+import { fieldErrorClassName, FormField } from "@/components/form/form-field"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -14,18 +16,29 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Spinner } from "@/components/ui/spinner"
 import {
   useCreateVehicleMutation,
   useUpdateVehicleMutation,
   type VehicleRecord,
 } from "@/components/fleet/fleet-queries"
+import { handleFormSubmitError } from "@/lib/handle-form-submit-error"
+import { tryCatch } from "@/lib/try-catch"
 import { createVehicleSchema, type CreateVehicleInput } from "@/modules/fleet"
 
 type VehicleFormDialogProps = {
   trigger: React.ReactNode
   vehicle?: VehicleRecord
+}
+
+const emptyVehicleValues: CreateVehicleInput = {
+  registrationNumber: "",
+  name: "",
+  type: "",
+  maxLoadCapacityKg: Number.NaN,
+  odometerKm: 0,
+  acquisitionCost: Number.NaN,
+  region: "",
 }
 
 export function VehicleFormDialog({
@@ -44,9 +57,12 @@ export function VehicleFormDialog({
     register,
     handleSubmit,
     reset,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm<CreateVehicleInput>({
     resolver: zodResolver(createVehicleSchema),
+    mode: "onTouched",
     defaultValues: vehicle
       ? {
           registrationNumber: vehicle.registrationNumber,
@@ -57,28 +73,50 @@ export function VehicleFormDialog({
           acquisitionCost: vehicle.acquisitionCost,
           region: vehicle.region,
         }
-      : { odometerKm: 0 },
+      : emptyVehicleValues,
   })
 
-  async function onSubmit(values: CreateVehicleInput) {
-    setFormError(null)
-    try {
-      if (isEdit && vehicle) {
-        await updateMutation.mutateAsync({ id: vehicle.id, input: values })
-      } else {
-        await createMutation.mutateAsync(values)
-      }
-      setOpen(false)
-      reset()
-    } catch (error) {
-      setFormError(
-        error instanceof Error ? error.message : "Failed to save vehicle"
+  function handleOpenChange(nextOpen: boolean) {
+    setOpen(nextOpen)
+    if (nextOpen) {
+      setFormError(null)
+      clearErrors()
+      reset(
+        vehicle
+          ? {
+              registrationNumber: vehicle.registrationNumber,
+              name: vehicle.name,
+              type: vehicle.type,
+              maxLoadCapacityKg: vehicle.maxLoadCapacityKg,
+              odometerKm: vehicle.odometerKm,
+              acquisitionCost: vehicle.acquisitionCost,
+              region: vehicle.region,
+            }
+          : emptyVehicleValues
       )
     }
   }
 
+  async function onSubmit(values: CreateVehicleInput) {
+    setFormError(null)
+    clearErrors()
+
+    const { error } = await tryCatch(
+      isEdit && vehicle
+        ? updateMutation.mutateAsync({ id: vehicle.id, input: values })
+        : createMutation.mutateAsync(values)
+    )
+
+    if (error) {
+      handleFormSubmitError(error, setError, setFormError)
+      return
+    }
+
+    setOpen(false)
+  }
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -90,99 +128,100 @@ export function VehicleFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {formError && (
-          <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-            {formError}
-          </div>
-        )}
+        <FormErrorBanner message={formError} />
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="registrationNumber">Registration number</Label>
+            <FormField
+              label="Registration number"
+              htmlFor="registrationNumber"
+              error={errors.registrationNumber?.message}
+            >
               <Input
                 id="registrationNumber"
+                aria-invalid={Boolean(errors.registrationNumber)}
+                className={fieldErrorClassName(
+                  errors.registrationNumber?.message
+                )}
                 {...register("registrationNumber")}
               />
-              {errors.registrationNumber && (
-                <p className="text-sm text-destructive">
-                  {errors.registrationNumber.message}
-                </p>
-              )}
-            </div>
+            </FormField>
 
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" {...register("name")} />
-              {errors.name && (
-                <p className="text-sm text-destructive">
-                  {errors.name.message}
-                </p>
-              )}
-            </div>
+            <FormField label="Name" htmlFor="name" error={errors.name?.message}>
+              <Input
+                id="name"
+                aria-invalid={Boolean(errors.name)}
+                className={fieldErrorClassName(errors.name?.message)}
+                {...register("name")}
+              />
+            </FormField>
 
-            <div className="space-y-2">
-              <Label htmlFor="type">Type</Label>
-              <Input id="type" {...register("type")} />
-              {errors.type && (
-                <p className="text-sm text-destructive">
-                  {errors.type.message}
-                </p>
-              )}
-            </div>
+            <FormField label="Type" htmlFor="type" error={errors.type?.message}>
+              <Input
+                id="type"
+                aria-invalid={Boolean(errors.type)}
+                className={fieldErrorClassName(errors.type?.message)}
+                {...register("type")}
+              />
+            </FormField>
 
-            <div className="space-y-2">
-              <Label htmlFor="region">Region</Label>
-              <Input id="region" {...register("region")} />
-              {errors.region && (
-                <p className="text-sm text-destructive">
-                  {errors.region.message}
-                </p>
-              )}
-            </div>
+            <FormField
+              label="Region"
+              htmlFor="region"
+              error={errors.region?.message}
+            >
+              <Input
+                id="region"
+                aria-invalid={Boolean(errors.region)}
+                className={fieldErrorClassName(errors.region?.message)}
+                {...register("region")}
+              />
+            </FormField>
 
-            <div className="space-y-2">
-              <Label htmlFor="maxLoadCapacityKg">Max load (kg)</Label>
+            <FormField
+              label="Max load (kg)"
+              htmlFor="maxLoadCapacityKg"
+              error={errors.maxLoadCapacityKg?.message}
+            >
               <Input
                 id="maxLoadCapacityKg"
                 type="number"
+                aria-invalid={Boolean(errors.maxLoadCapacityKg)}
+                className={fieldErrorClassName(
+                  errors.maxLoadCapacityKg?.message
+                )}
                 {...register("maxLoadCapacityKg", { valueAsNumber: true })}
               />
-              {errors.maxLoadCapacityKg && (
-                <p className="text-sm text-destructive">
-                  {errors.maxLoadCapacityKg.message}
-                </p>
-              )}
-            </div>
+            </FormField>
 
-            <div className="space-y-2">
-              <Label htmlFor="odometerKm">Odometer (km)</Label>
+            <FormField
+              label="Odometer (km)"
+              htmlFor="odometerKm"
+              error={errors.odometerKm?.message}
+            >
               <Input
                 id="odometerKm"
                 type="number"
+                aria-invalid={Boolean(errors.odometerKm)}
+                className={fieldErrorClassName(errors.odometerKm?.message)}
                 {...register("odometerKm", { valueAsNumber: true })}
               />
-              {errors.odometerKm && (
-                <p className="text-sm text-destructive">
-                  {errors.odometerKm.message}
-                </p>
-              )}
-            </div>
+            </FormField>
 
-            <div className="space-y-2">
-              <Label htmlFor="acquisitionCost">Acquisition cost</Label>
+            <FormField
+              label="Acquisition cost"
+              htmlFor="acquisitionCost"
+              error={errors.acquisitionCost?.message}
+            >
               <Input
                 id="acquisitionCost"
                 type="number"
                 step="0.01"
+                aria-invalid={Boolean(errors.acquisitionCost)}
+                className={fieldErrorClassName(errors.acquisitionCost?.message)}
                 {...register("acquisitionCost", { valueAsNumber: true })}
               />
-              {errors.acquisitionCost && (
-                <p className="text-sm text-destructive">
-                  {errors.acquisitionCost.message}
-                </p>
-              )}
-            </div>
+            </FormField>
           </div>
 
           <DialogFooter>

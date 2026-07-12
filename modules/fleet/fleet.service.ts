@@ -1,9 +1,12 @@
-import { and, asc, eq, ilike, ne } from "drizzle-orm"
+import { and, asc, eq, ilike, ne, or } from "drizzle-orm"
 import { db } from "@/db"
-import { vehicle } from "@/db/schema"
+import { driver, vehicle } from "@/db/schema"
 import { tryCatch } from "@/lib/try-catch"
 import type {
+  CreateDriverInput,
   CreateVehicleInput,
+  DriverQueryInput,
+  UpdateDriverInput,
   UpdateVehicleInput,
   VehicleQueryInput,
 } from "@/modules/fleet/fleet.schema"
@@ -137,4 +140,120 @@ async function getVehicleById(vehicleId: string) {
     db.select().from(vehicle).where(eq(vehicle.id, vehicleId)).limit(1)
   )
   return rows?.[0] ?? null
+}
+
+export async function listDrivers(filters: DriverQueryInput) {
+  const conditions = []
+
+  if (filters.status) {
+    conditions.push(eq(driver.status, filters.status))
+  }
+  if (filters.search) {
+    conditions.push(
+      or(
+        ilike(driver.name, `%${filters.search}%`),
+        ilike(driver.licenseNumber, `%${filters.search}%`)
+      )
+    )
+  }
+
+  const { data: rows, error } = await tryCatch(
+    db
+      .select()
+      .from(driver)
+      .where(conditions.length ? and(...conditions) : undefined)
+      .orderBy(asc(driver.name))
+  )
+
+  if (error || !rows) {
+    return { error: error?.message ?? "Failed to load drivers" }
+  }
+
+  return { data: rows }
+}
+
+export async function createDriver(input: CreateDriverInput) {
+  const { data: rows, error } = await tryCatch(
+    db
+      .insert(driver)
+      .values({
+        id: crypto.randomUUID(),
+        ...input,
+        licenseExpiryDate: new Date(`${input.licenseExpiryDate}T00:00:00.000Z`),
+      })
+      .returning()
+  )
+
+  if (error || !rows?.[0]) {
+    if ((error as { code?: string } | null)?.code === UNIQUE_VIOLATION) {
+      return { error: "License number already in use" }
+    }
+    return { error: error?.message ?? "Failed to create driver" }
+  }
+
+  return { data: rows[0] }
+}
+
+export async function updateDriver(driverId: string, input: UpdateDriverInput) {
+  const { licenseExpiryDate, ...rest } = input
+  const { data: rows, error } = await tryCatch(
+    db
+      .update(driver)
+      .set({
+        ...rest,
+        ...(licenseExpiryDate
+          ? {
+              licenseExpiryDate: new Date(`${licenseExpiryDate}T00:00:00.000Z`),
+            }
+          : {}),
+      })
+      .where(eq(driver.id, driverId))
+      .returning()
+  )
+
+  if (error || !rows?.[0]) {
+    if ((error as { code?: string } | null)?.code === UNIQUE_VIOLATION) {
+      return { error: "License number already in use" }
+    }
+    return { error: error?.message ?? "Driver not found" }
+  }
+
+  return { data: rows[0] }
+}
+
+export async function suspendDriver(driverId: string) {
+  const { data: rows, error } = await tryCatch(
+    db
+      .update(driver)
+      .set({ status: "Suspended" })
+      .where(
+        and(
+          eq(driver.id, driverId),
+          ne(driver.status, "Suspended"),
+          ne(driver.status, "OnTrip")
+        )
+      )
+      .returning()
+  )
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  if (!rows?.[0]) {
+    const { data: existing } = await tryCatch(
+      db.select().from(driver).where(eq(driver.id, driverId)).limit(1)
+    )
+    if (!existing?.[0]) {
+      return { error: "Driver not found" }
+    }
+    return {
+      error:
+        existing[0].status === "OnTrip"
+          ? "An active trip driver cannot be suspended"
+          : "Driver is already suspended",
+    }
+  }
+
+  return { data: rows[0] }
 }

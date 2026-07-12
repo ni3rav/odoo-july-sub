@@ -7,19 +7,14 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import Password from "@/components/ui/password-input"
+import { fieldErrorClassName, FormField } from "@/components/form/form-field"
+import { FormErrorBanner } from "@/components/form/form-error-banner"
 import { signIn } from "@/lib/auth-client"
 import { type SignInInput, signInSchema } from "@/modules/auth"
 import { useState } from "react"
 import { Spinner } from "@/components/ui/spinner"
-import {
-  Truck,
-  ShieldCheck,
-  UserCheck,
-  ShieldAlert,
-  BarChart3,
-} from "lucide-react"
+import { Truck, ShieldCheck, UserCheck, BarChart3 } from "lucide-react"
 
 const DEMO_ROLES = [
   {
@@ -60,6 +55,7 @@ export default function SignInPage() {
     formState: { errors, isSubmitting },
   } = useForm<SignInInput>({
     resolver: zodResolver(signInSchema),
+    mode: "onTouched",
     defaultValues: {
       email: "",
       password: "",
@@ -136,44 +132,39 @@ export default function SignInPage() {
             </p>
           </div>
 
-          {error && (
-            <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-              <ShieldAlert className="h-4 w-4 shrink-0" />
-              <span>{error}</span>
-            </div>
-          )}
+          <FormErrorBanner message={error} />
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Email address</Label>
+            <FormField
+              label="Email address"
+              htmlFor="email"
+              error={errors.email?.message}
+            >
               <Input
                 id="email"
                 type="email"
                 placeholder="name@example.com"
                 autoComplete="email"
+                aria-invalid={Boolean(errors.email)}
+                className={fieldErrorClassName(errors.email?.message)}
                 {...register("email")}
               />
-              {errors.email && (
-                <p className="text-xs text-destructive">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
+            </FormField>
 
-            <div className="space-y-1.5">
+            <FormField
+              label="Password"
+              htmlFor="password"
+              error={errors.password?.message}
+            >
               <Password
                 id="password"
-                label="Password"
                 placeholder="••••••••"
                 autoComplete="current-password"
+                aria-invalid={Boolean(errors.password)}
+                className={fieldErrorClassName(errors.password?.message)}
                 {...register("password")}
               />
-              {errors.password && (
-                <p className="text-xs text-destructive">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
+            </FormField>
 
             <Button
               type="submit"
