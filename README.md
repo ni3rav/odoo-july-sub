@@ -41,8 +41,8 @@ See [docs/prd.md](docs/prd.md) for the full product spec and [docs/plan.md](docs
 ### 1. Clone and install
 
 ```bash
-git clone <repo-url>
-cd odoo-july-sub
+git clone https://github.com/ni3rav/odoo-july-sub
+xcd odoo-july-sub
 pnpm install
 ```
 
