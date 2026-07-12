@@ -8,6 +8,7 @@ import {
 } from "@/modules/rbac/rbac.service"
 import { requireAuth } from "@/middleware/auth"
 import { requirePermission } from "@/middleware/rbac"
+import { formatZodIssues } from "@/lib/zod-errors"
 
 export const rbacRoutes = new Elysia({ prefix: "/rbac" })
   .use(requireAuth)
@@ -44,10 +45,7 @@ export const rbacRoutes = new Elysia({ prefix: "/rbac" })
         const parsed = updatePermissionMatrixSchema.safeParse(body)
 
         if (!parsed.success) {
-          const issues = parsed.error.issues
-            .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-            .join("\n")
-          return status(400, { error: issues })
+          return status(400, { error: formatZodIssues(parsed.error.issues) })
         }
 
         const result = await updatePermissionGrants(parsed.data.grants)

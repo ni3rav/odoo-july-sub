@@ -1,10 +1,12 @@
 import { Elysia } from "elysia"
 import { authRoutes } from "@/modules/auth/auth.route"
 import { rbacRoutes } from "@/modules/rbac/rbac.route"
+import { fleetRoutes } from "@/modules/fleet/fleet.route"
 
 const app = new Elysia({ prefix: "/api" })
   .use(authRoutes)
   .use(rbacRoutes)
+  .use(fleetRoutes)
   .get("/health", () => ({ status: "ok" }))
 
 export type App = typeof app
