@@ -8,9 +8,11 @@ import {
 } from "@/modules/operations/operations.route"
 import { reportsRoutes } from "@/modules/reports/reports.route"
 import { tripsRoutes } from "@/modules/trips/trips.route"
+import { profileRoutes } from "@/modules/profile/profile.route"
 
 const app = new Elysia({ prefix: "/api" })
   .use(authRoutes)
+  .use(profileRoutes)
   .use(rbacRoutes)
   .use(fleetRoutes)
   .use(tripsRoutes)

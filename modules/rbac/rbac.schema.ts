@@ -26,6 +26,22 @@ export type UpdatePermissionMatrixInput = z.infer<
   typeof updatePermissionMatrixSchema
 >
 
+export type PermissionMatrixRow = {
+  roleId: string
+  roleSlug: string
+  roleName: string
+  permissionId: string
+  module: PermissionModuleInput
+  action: PermissionActionInput
+  granted: boolean
+}
+
+export type RoleSummary = {
+  id: string
+  name: string
+  slug: string
+}
+
 export const createRoleSchema = z.object({
   name: z.string().min(1, "Role name is required"),
 })
