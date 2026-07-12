@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { requireSession } from "@/lib/auth-guard"
 import { getUserPermissions } from "@/modules/rbac/rbac.service"
 import {
@@ -83,14 +84,22 @@ export default async function AppLayout({
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <Sidebar className="border-r border-border bg-card">
-          <SidebarHeader className="border-b border-border">
+          <SidebarHeader className="flex flex-row items-center justify-between border-b border-border">
             <Link
               href="/dashboard"
               className="flex items-center gap-2 text-lg font-semibold text-primary"
             >
-              <div className="flex size-12 items-center justify-center rounded-lg overflow-hidden p-0.5">
-                <img src="/light-icon-app.png" alt="TransitOps Logo" className="h-full w-full object-contain block dark:hidden" />
-                <img src="/dark-icon-app.png" alt="TransitOps Logo" className="h-full w-full object-contain hidden dark:block" />
+              <div className="flex size-12 items-center justify-center overflow-hidden rounded-lg p-0.5">
+                <img
+                  src="/light-icon-app.png"
+                  alt="TransitOps Logo"
+                  className="block h-full w-full object-contain dark:hidden"
+                />
+                <img
+                  src="/dark-icon-app.png"
+                  alt="TransitOps Logo"
+                  className="hidden h-full w-full object-contain dark:block"
+                />
               </div>
               <span>TransitOps</span>
             </Link>
