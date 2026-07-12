@@ -1,7 +1,11 @@
 "use client"
 
 import { PieChart, Pie } from "recharts"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
 import { cn } from "@/lib/utils"
 
 interface CostBreakdownItem {
@@ -13,7 +17,9 @@ interface CostAllocationChartProps {
   costBreakdown: CostBreakdownItem[]
 }
 
-export function CostAllocationChart({ costBreakdown }: CostAllocationChartProps) {
+export function CostAllocationChart({
+  costBreakdown,
+}: CostAllocationChartProps) {
   const costConfig = {
     Fuel: { label: "Fuel", color: "oklch(0.637 0.208 25.331)" },
     Maintenance: { label: "Maintenance", color: "oklch(0.769 0.188 70.08)" },
@@ -38,11 +44,17 @@ export function CostAllocationChart({ costBreakdown }: CostAllocationChartProps)
   })
 
   return (
-    <div className="flex-1 flex flex-col justify-between pb-6">
-      <div className="flex-1 flex items-center justify-center min-h-[180px]">
-        <ChartContainer config={costConfig} className="mx-auto aspect-square w-full max-h-[160px]">
+    <div className="flex flex-1 flex-col justify-between pb-6">
+      <div className="flex min-h-[180px] flex-1 items-center justify-center">
+        <ChartContainer
+          config={costConfig}
+          className="mx-auto aspect-square max-h-[160px] w-full"
+        >
           <PieChart>
-            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
             <Pie
               data={costData}
               dataKey="value"
@@ -56,29 +68,32 @@ export function CostAllocationChart({ costBreakdown }: CostAllocationChartProps)
         </ChartContainer>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 mt-4">
+      <div className="mt-4 grid grid-cols-3 gap-2">
         {costBreakdown.map((item) => {
           const total = costBreakdown.reduce((acc, c) => acc + c.value, 0)
           const pct = total > 0 ? (item.value / total) * 100 : 0
           return (
-            <div key={item.name} className="flex flex-col p-2 rounded-lg border border-border bg-muted/20 text-center">
-              <div className="flex items-center justify-center gap-1.5 mb-1">
+            <div
+              key={item.name}
+              className="flex flex-col rounded-lg border border-border bg-muted/20 p-2 text-center"
+            >
+              <div className="mb-1 flex items-center justify-center gap-1.5">
                 <div
                   className={cn(
-                    "h-2 w-2 rounded-xs shrink-0",
+                    "h-2 w-2 shrink-0 rounded-xs",
                     item.name === "Fuel" && "bg-rose-500",
                     item.name === "Maintenance" && "bg-amber-500",
                     item.name === "Tolls & Fees" && "bg-blue-500"
                   )}
                 />
-                <span className="text-[10px] font-bold text-foreground truncate">
+                <span className="truncate text-[10px] font-bold text-foreground">
                   {item.name}
                 </span>
               </div>
               <span className="text-[11px] font-semibold text-card-foreground">
                 ${Number(item.value).toLocaleString()}
               </span>
-              <span className="text-[9px] text-muted-foreground mt-0.5">
+              <span className="mt-0.5 text-[9px] text-muted-foreground">
                 {Math.round(pct)}%
               </span>
             </div>

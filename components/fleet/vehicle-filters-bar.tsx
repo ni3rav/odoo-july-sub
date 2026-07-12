@@ -56,7 +56,9 @@ export function VehicleFiltersBar({
           onFiltersChange({
             ...filters,
             status:
-              value === ALL ? undefined : (value as VehicleQueryInput["status"]),
+              value === ALL
+                ? undefined
+                : (value as VehicleQueryInput["status"]),
           })
         }
       >

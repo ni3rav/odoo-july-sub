@@ -79,7 +79,6 @@ export default async function DashboardPage({
 
   return (
     <div className="space-y-6">
-
       <DashboardFilters />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
@@ -89,21 +88,30 @@ export default async function DashboardPage({
             <Card
               key={idx}
               className={cn(
-                "bg-card border-border shadow-2xs hover:shadow-xs transition-shadow duration-200",
+                "border-border bg-card shadow-2xs transition-shadow duration-200 hover:shadow-xs",
                 idx === 0 && "sm:col-span-2 xl:col-span-1"
               )}
             >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <CardTitle className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                   {kpi.title}
                 </CardTitle>
-                <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg", kpi.color)}>
+                <div
+                  className={cn(
+                    "flex h-8 w-8 items-center justify-center rounded-lg",
+                    kpi.color
+                  )}
+                >
                   <IconComp className="h-4.5 w-4.5" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-card-foreground tracking-tight">{kpi.value}</div>
-                <p className="text-[10px] text-muted-foreground mt-0.5 leading-normal">{kpi.description}</p>
+                <div className="text-2xl font-bold tracking-tight text-card-foreground">
+                  {kpi.value}
+                </div>
+                <p className="mt-0.5 text-[10px] leading-normal text-muted-foreground">
+                  {kpi.description}
+                </p>
               </CardContent>
             </Card>
           )
@@ -111,19 +119,23 @@ export default async function DashboardPage({
       </div>
 
       <div className="grid gap-6 lg:grid-cols-7">
-        <div className="lg:col-span-5 space-y-3">
+        <div className="space-y-3 lg:col-span-5">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-bold text-foreground">Recent Trips</h3>
           </div>
           <RecentTripsTable trips={data.recentTrips} />
         </div>
 
-        <Card className="lg:col-span-2 bg-card border-border flex flex-col">
+        <Card className="flex flex-col border-border bg-card lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-card-foreground text-lg">Fleet Status Allocation</CardTitle>
-            <p className="text-xs text-muted-foreground">Current distribution of fleet assets</p>
+            <CardTitle className="text-lg text-card-foreground">
+              Fleet Status Allocation
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">
+              Current distribution of fleet assets
+            </p>
           </CardHeader>
-          <CardContent className="flex-1 flex flex-col justify-between pb-6">
+          <CardContent className="flex flex-1 flex-col justify-between pb-6">
             <FleetStatusChart statusBreakdown={data.statusBreakdown} />
           </CardContent>
         </Card>

@@ -18,8 +18,6 @@ export function ActiveRouteTitle() {
   const title = routeTitles[pathname] ?? "Transit Operations Platform"
 
   return (
-    <h2 className="truncate text-sm font-semibold text-foreground">
-      {title}
-    </h2>
+    <h2 className="truncate text-sm font-semibold text-foreground">{title}</h2>
   )
 }

@@ -38,7 +38,9 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
       flex: 1,
       minWidth: 100,
       renderCell: (params) => (
-        <span className="font-semibold text-foreground text-xs">{params.value}</span>
+        <span className="text-xs font-semibold text-foreground">
+          {params.value}
+        </span>
       ),
     },
     {
@@ -48,7 +50,7 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
       minWidth: 180,
       valueGetter: (value, row) => `${row.source} → ${row.destination}`,
       renderCell: (params) => (
-        <span className="text-foreground text-xs">{params.value}</span>
+        <span className="text-xs text-foreground">{params.value}</span>
       ),
     },
     {
@@ -58,7 +60,7 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
       minWidth: 140,
       valueGetter: (value, row) => `${row.vehicleName} (${row.vehicleReg})`,
       renderCell: (params) => (
-        <span className="text-foreground text-xs">{params.value}</span>
+        <span className="text-xs text-foreground">{params.value}</span>
       ),
     },
     {
@@ -67,7 +69,7 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
       flex: 1.2,
       minWidth: 110,
       renderCell: (params) => (
-        <span className="text-foreground text-xs">{params.value}</span>
+        <span className="text-xs text-foreground">{params.value}</span>
       ),
     },
     {
@@ -76,8 +78,12 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
       flex: 1,
       minWidth: 90,
       renderCell: (params) => (
-        <span className="font-medium text-foreground text-xs">
-          ${Number(params.value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        <span className="text-xs font-medium text-foreground">
+          $
+          {Number(params.value).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
         </span>
       ),
     },
@@ -89,7 +95,7 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
       renderCell: (params) => (
         <Badge
           className={cn(
-            "text-[10px] font-semibold tracking-wide uppercase px-2 py-0.5 rounded border",
+            "rounded border px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase",
             statusColors[params.value] || "bg-muted text-muted-foreground"
           )}
         >
@@ -105,7 +111,10 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
   }))
 
   return (
-    <div className="w-full bg-card rounded-xl overflow-hidden border border-border" style={{ height: 350 }}>
+    <div
+      className="w-full overflow-hidden rounded-xl border border-border bg-card"
+      style={{ height: 350 }}
+    >
       <DataGrid
         rows={formattedRows}
         columns={columns}
@@ -142,9 +151,10 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
             color: "var(--muted-foreground)",
             fontSize: "0.75rem",
           },
-          "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
-            fontSize: "0.75rem",
-          },
+          "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
+            {
+              fontSize: "0.75rem",
+            },
         }}
       />
     </div>

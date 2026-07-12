@@ -28,7 +28,10 @@ type VehicleFormDialogProps = {
   vehicle?: VehicleRecord
 }
 
-export function VehicleFormDialog({ trigger, vehicle }: VehicleFormDialogProps) {
+export function VehicleFormDialog({
+  trigger,
+  vehicle,
+}: VehicleFormDialogProps) {
   const [open, setOpen] = React.useState(false)
   const [formError, setFormError] = React.useState<string | null>(null)
   const isEdit = Boolean(vehicle)

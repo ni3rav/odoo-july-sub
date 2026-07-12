@@ -1,5 +1,12 @@
 import { db } from "@/db"
-import { vehicle, driver, trip, maintenanceRecord, fuelLog, expense } from "@/db/schema"
+import {
+  vehicle,
+  driver,
+  trip,
+  maintenanceRecord,
+  fuelLog,
+  expense,
+} from "@/db/schema"
 import { eq, and } from "drizzle-orm"
 import { tryCatch } from "@/lib/try-catch"
 import type { VehicleStatus } from "@/db/schema/constants"
@@ -22,7 +29,10 @@ export async function getDashboardKPIs(filters?: {
 
   const vehiclesResult = await tryCatch(
     whereConditions.length > 0
-      ? db.select().from(vehicle).where(and(...whereConditions))
+      ? db
+          .select()
+          .from(vehicle)
+          .where(and(...whereConditions))
       : db.select().from(vehicle)
   )
   const vehicles = vehiclesResult.data || []
@@ -43,16 +53,29 @@ export async function getDashboardKPIs(filters?: {
   const expenses = expensesResult.data || []
 
   const totalVehicles = vehicles.filter((v) => v.status !== "Retired").length
-  const activeVehicles = vehicles.filter((v) => v.status === "OnTrip" || v.status === "InShop").length
-  const utilization = totalVehicles > 0 ? Math.round((activeVehicles / totalVehicles) * 100) : 0
+  const activeVehicles = vehicles.filter(
+    (v) => v.status === "OnTrip" || v.status === "InShop"
+  ).length
+  const utilization =
+    totalVehicles > 0 ? Math.round((activeVehicles / totalVehicles) * 100) : 0
 
-  const activeTrips = trips.filter((t) => t.status === "Dispatched" || t.status === "InTransit").length
-  const availableDrivers = drivers.filter((d) => d.status === "Available").length
+  const activeTrips = trips.filter(
+    (t) => t.status === "Dispatched" || t.status === "InTransit"
+  ).length
+  const availableDrivers = drivers.filter(
+    (d) => d.status === "Available"
+  ).length
   const vehiclesInShop = vehicles.filter((v) => v.status === "InShop").length
 
   const totalFuelCost = fuelLogs.reduce((acc, log) => acc + Number(log.cost), 0)
-  const totalMaintCost = maintenances.reduce((acc, rec) => acc + Number(rec.cost), 0)
-  const totalExpenseCost = expenses.reduce((acc, exp) => acc + Number(exp.amount), 0)
+  const totalMaintCost = maintenances.reduce(
+    (acc, rec) => acc + Number(rec.cost),
+    0
+  )
+  const totalExpenseCost = expenses.reduce(
+    (acc, exp) => acc + Number(exp.amount),
+    0
+  )
   const totalCost = totalFuelCost + totalMaintCost + totalExpenseCost
 
   const totalRevenue = trips
@@ -189,7 +212,9 @@ export async function getAnalyticsData() {
     monthlyChartData[monthIdx].cost += Number(e.amount)
   })
 
-  const hasNoData = monthlyChartData.every((d) => d.revenue === 0 && d.cost === 0)
+  const hasNoData = monthlyChartData.every(
+    (d) => d.revenue === 0 && d.cost === 0
+  )
   if (hasNoData) {
     monthlyChartData = [
       { month: "Jan", revenue: 12000, cost: 7200 },
@@ -202,7 +227,10 @@ export async function getAnalyticsData() {
   }
 
   const fuelCost = fuelLogs.reduce((acc, f) => acc + Number(f.cost), 0)
-  const maintenanceCost = maintenances.reduce((acc, m) => acc + Number(m.cost), 0)
+  const maintenanceCost = maintenances.reduce(
+    (acc, m) => acc + Number(m.cost),
+    0
+  )
   const otherCost = expenses.reduce((acc, e) => acc + Number(e.amount), 0)
 
   let costBreakdown = [
@@ -227,7 +255,8 @@ export async function getAnalyticsData() {
       totalFuel += Number(t.fuelConsumedLiters ?? 0)
     }
   })
-  const fuelEfficiency = totalFuel > 0 ? (totalDistance / totalFuel).toFixed(2) : "6.8"
+  const fuelEfficiency =
+    totalFuel > 0 ? (totalDistance / totalFuel).toFixed(2) : "6.8"
 
   return {
     monthlyData: monthlyChartData,
@@ -246,7 +275,17 @@ export async function generateCSVExport() {
   const driversResult = await tryCatch(db.select().from(driver))
   const drivers = driversResult.data || []
 
-  const headers = ["Trip ID", "Vehicle", "Driver", "Source", "Destination", "Distance (km)", "Revenue ($)", "Status", "Date"]
+  const headers = [
+    "Trip ID",
+    "Vehicle",
+    "Driver",
+    "Source",
+    "Destination",
+    "Distance (km)",
+    "Revenue ($)",
+    "Status",
+    "Date",
+  ]
   const rows = trips.map((t) => {
     const v = vehicles.find((veh) => veh.id === t.vehicleId)
     const d = drivers.find((drv) => drv.id === t.driverId)
@@ -265,15 +304,47 @@ export async function generateCSVExport() {
 
   if (rows.length === 0) {
     rows.push(
-      ["TRIP-2849", "Transit Van 05", "Alex", "Chicago Hub", "Detroit Depot", "450", "850", "Completed", "2026-07-10"],
-      ["TRIP-2850", "Transit Van 05", "Alex", "Detroit Depot", "Cleveland Hub", "280", "420", "InTransit", "2026-07-11"],
-      ["TRIP-2851", "Semi-Truck 12", "Sarah Connor", "Cleveland Hub", "Chicago Hub", "550", "1200", "Dispatched", "2026-07-12"]
+      [
+        "TRIP-2849",
+        "Transit Van 05",
+        "Alex",
+        "Chicago Hub",
+        "Detroit Depot",
+        "450",
+        "850",
+        "Completed",
+        "2026-07-10",
+      ],
+      [
+        "TRIP-2850",
+        "Transit Van 05",
+        "Alex",
+        "Detroit Depot",
+        "Cleveland Hub",
+        "280",
+        "420",
+        "InTransit",
+        "2026-07-11",
+      ],
+      [
+        "TRIP-2851",
+        "Semi-Truck 12",
+        "Sarah Connor",
+        "Cleveland Hub",
+        "Chicago Hub",
+        "550",
+        "1200",
+        "Dispatched",
+        "2026-07-12",
+      ]
     )
   }
 
   const csvContent = [
     headers.join(","),
-    ...rows.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(",")),
+    ...rows.map((row) =>
+      row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(",")
+    ),
   ].join("\n")
 
   return csvContent

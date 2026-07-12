@@ -39,14 +39,14 @@ export function DashboardFilters() {
     (currentRegion && currentRegion !== "ALL")
 
   return (
-    <div className="flex flex-wrap items-center gap-3 bg-card border border-border p-4 rounded-xl">
-      <div className="flex items-center gap-2 text-sm font-semibold text-foreground mr-2">
+    <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card p-4">
+      <div className="mr-2 flex items-center gap-2 text-sm font-semibold text-foreground">
         <Filter className="h-4 w-4 text-muted-foreground" />
         <span>Filters</span>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3 flex-1 min-w-[200px]">
-        <div className="flex flex-col gap-1.5 flex-1">
+      <div className="flex min-w-[200px] flex-1 flex-col gap-3 sm:flex-row">
+        <div className="flex flex-1 flex-col gap-1.5">
           <Select
             value={currentType}
             onValueChange={(val) => handleFilterChange("type", val)}
@@ -63,7 +63,7 @@ export function DashboardFilters() {
           </Select>
         </div>
 
-        <div className="flex flex-col gap-1.5 flex-1">
+        <div className="flex flex-1 flex-col gap-1.5">
           <Select
             value={currentStatus}
             onValueChange={(val) => handleFilterChange("status", val)}
@@ -81,7 +81,7 @@ export function DashboardFilters() {
           </Select>
         </div>
 
-        <div className="flex flex-col gap-1.5 flex-1">
+        <div className="flex flex-1 flex-col gap-1.5">
           <Select
             value={currentRegion}
             onValueChange={(val) => handleFilterChange("region", val)}
@@ -105,7 +105,7 @@ export function DashboardFilters() {
           variant="ghost"
           size="sm"
           onClick={handleClear}
-          className="h-9 px-3 gap-1.5 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
+          className="h-9 gap-1.5 px-3 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
         >
           <X className="h-3.5 w-3.5" />
           Clear Filters

@@ -6,73 +6,55 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { UserNav } from "@/components/user-nav"
+import { SidebarNav } from "@/components/sidebar-nav"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { ActiveRouteTitle } from "@/components/active-route-title"
 import Link from "next/link"
-import {
-  LayoutDashboard,
-  Truck,
-  Users,
-  Map,
-  Wrench,
-  Fuel,
-  BarChart3,
-  Settings,
-} from "lucide-react"
+import { Truck } from "lucide-react"
 
 const NAV_ITEMS = [
   {
     href: "/dashboard",
     label: "Dashboard",
-    icon: LayoutDashboard,
     module: null,
   },
   {
     href: "/fleet",
     label: "Fleet",
-    icon: Truck,
     module: "fleet",
   },
   {
     href: "/drivers",
     label: "Drivers",
-    icon: Users,
     module: "drivers",
   },
   {
     href: "/trips",
     label: "Trips",
-    icon: Map,
     module: "trips",
   },
   {
     href: "/maintenance",
     label: "Maintenance",
-    icon: Wrench,
     module: "maintenance",
   },
   {
     href: "/fuel",
     label: "Fuel & Expenses",
-    icon: Fuel,
     module: "fuel",
   },
   {
     href: "/analytics",
     label: "Analytics",
-    icon: BarChart3,
     module: "analytics",
   },
   {
     href: "/settings",
     label: "Settings",
-    icon: Settings,
     module: "settings",
   },
 ]
@@ -109,23 +91,21 @@ export default async function AppLayout({
           </SidebarHeader>
 
           <SidebarContent className="p-2">
-            <SidebarMenu>
-              {allowedItems.map((item) => {
-                const IconComp = item.icon
-                return (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton render={<Link href={item.href} />}>
-                      <IconComp className="h-4 w-4 shrink-0 text-muted-foreground" />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )
-              })}
-            </SidebarMenu>
+            <SidebarNav
+              items={allowedItems.map((item) => ({
+                href: item.href,
+                label: item.label,
+              }))}
+            />
           </SidebarContent>
 
           <SidebarFooter className="border-t border-border p-2">
-            <UserNav user={session.user} />
+            <div className="flex items-center gap-1">
+              <div className="min-w-0 flex-1">
+                <UserNav user={session.user} />
+              </div>
+              <ThemeToggle />
+            </div>
           </SidebarFooter>
         </Sidebar>
 

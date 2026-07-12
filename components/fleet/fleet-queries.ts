@@ -74,7 +74,9 @@ export function useRetireVehicleMutation() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data, error } = await api.api.fleet.vehicles({ id }).retire.patch()
+      const { data, error } = await api.api.fleet
+        .vehicles({ id })
+        .retire.patch()
       if (error) {
         throw new Error(String(error.value))
       }

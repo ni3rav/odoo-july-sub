@@ -33,7 +33,8 @@ export const reportsRoutes = new Elysia({ prefix: "/reports" })
       .get("/export/csv", async ({ set }) => {
         const csv = await generateCSVExport()
         set.headers["Content-Type"] = "text/csv"
-        set.headers["Content-Disposition"] = "attachment; filename=transitops_reports.csv"
+        set.headers["Content-Disposition"] =
+          "attachment; filename=transitops_reports.csv"
         return csv
       })
   )
