@@ -307,3 +307,17 @@ Normalizes code style across all files.
 **Summary order:** `typecheck` → `lint` → `build` → `format`
 
 Do not skip steps. Do not commit until `build` passes cleanly.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live as local markdown files under `.scratch/<feature-slug>/`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Five canonical triage roles recorded as `Status:` lines on issue files. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context layout: `CONTEXT.md` at repo root and `docs/adr/` for ADRs. See `docs/agents/domain.md`.
