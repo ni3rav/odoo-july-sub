@@ -206,7 +206,8 @@ export async function getAnalyticsData() {
       return {
         vehicleName: v.name,
         vehicleReg: v.registrationNumber,
-        totalCost: vehicleFuelCost + vehicleMaintenanceCost + vehicleExpenseCost,
+        totalCost:
+          vehicleFuelCost + vehicleMaintenanceCost + vehicleExpenseCost,
       }
     })
     .filter((row) => row.totalCost > 0)

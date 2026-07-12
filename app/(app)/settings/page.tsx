@@ -1,5 +1,8 @@
 import { requireSession } from "@/lib/auth-guard"
-import { getUserPermissions, getPermissionMatrix } from "@/modules/rbac/rbac.service"
+import {
+  getUserPermissions,
+  getPermissionMatrix,
+} from "@/modules/rbac/rbac.service"
 import { SettingsClient } from "./settings-client"
 import { redirect } from "next/navigation"
 
@@ -22,10 +25,5 @@ export default async function SettingsPage() {
     (p) => p.module === "settings" && p.action === "edit"
   )
 
-  return (
-    <SettingsClient
-      initialMatrix={initialMatrix}
-      canEdit={canEdit}
-    />
-  )
+  return <SettingsClient initialMatrix={initialMatrix} canEdit={canEdit} />
 }

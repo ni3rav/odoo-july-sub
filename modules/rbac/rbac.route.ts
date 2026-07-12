@@ -1,5 +1,8 @@
 import { Elysia } from "elysia"
-import { updatePermissionMatrixSchema, createRoleSchema } from "@/modules/rbac/rbac.schema"
+import {
+  updatePermissionMatrixSchema,
+  createRoleSchema,
+} from "@/modules/rbac/rbac.schema"
 import {
   getPermissionMatrix,
   getUserPermissions,

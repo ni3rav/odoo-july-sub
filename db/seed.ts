@@ -181,68 +181,249 @@ const STATES = [
 ]
 
 const VEHICLE_MODELS = [
-  { name: "Tata Ace Gold", type: "Mini Truck", capacity: [750, 1000], cost: [450000, 600000] },
-  { name: "Mahindra Bolero Pickup", type: "Pickup", capacity: [1500, 1700], cost: [750000, 900000] },
-  { name: "Ashok Leyland Dost+", type: "LCV", capacity: [1500, 2000], cost: [900000, 1100000] },
-  { name: "Tata 407 Gold SFC", type: "LCV", capacity: [2500, 3000], cost: [1200000, 1500000] },
-  { name: "Eicher Pro 2049", type: "HCV", capacity: [4000, 5000], cost: [1800000, 2200000] },
-  { name: "Mahindra Furio 7", type: "HCV", capacity: [5500, 7000], cost: [2200000, 2600000] },
-  { name: "Force Traveller", type: "Van", capacity: [1000, 1200], cost: [1500000, 1700000] },
-  { name: "Tata Winger", type: "Van", capacity: [800, 1000], cost: [1300000, 1500000] },
-  { name: "Maruti Suzuki Super Carry", type: "Mini Truck", capacity: [600, 740], cost: [500000, 600000] },
-  { name: "Piaggio Ape Xtra", type: "Three-Wheeler", capacity: [500, 600], cost: [300000, 350000] },
-  { name: "Bajaj Maxima Z", type: "Three-Wheeler", capacity: [500, 550], cost: [280000, 320000] },
-  { name: "Ashok Leyland Boss", type: "HCV", capacity: [9000, 10000], cost: [2800000, 3200000] },
+  {
+    name: "Tata Ace Gold",
+    type: "Mini Truck",
+    capacity: [750, 1000],
+    cost: [450000, 600000],
+  },
+  {
+    name: "Mahindra Bolero Pickup",
+    type: "Pickup",
+    capacity: [1500, 1700],
+    cost: [750000, 900000],
+  },
+  {
+    name: "Ashok Leyland Dost+",
+    type: "LCV",
+    capacity: [1500, 2000],
+    cost: [900000, 1100000],
+  },
+  {
+    name: "Tata 407 Gold SFC",
+    type: "LCV",
+    capacity: [2500, 3000],
+    cost: [1200000, 1500000],
+  },
+  {
+    name: "Eicher Pro 2049",
+    type: "HCV",
+    capacity: [4000, 5000],
+    cost: [1800000, 2200000],
+  },
+  {
+    name: "Mahindra Furio 7",
+    type: "HCV",
+    capacity: [5500, 7000],
+    cost: [2200000, 2600000],
+  },
+  {
+    name: "Force Traveller",
+    type: "Van",
+    capacity: [1000, 1200],
+    cost: [1500000, 1700000],
+  },
+  {
+    name: "Tata Winger",
+    type: "Van",
+    capacity: [800, 1000],
+    cost: [1300000, 1500000],
+  },
+  {
+    name: "Maruti Suzuki Super Carry",
+    type: "Mini Truck",
+    capacity: [600, 740],
+    cost: [500000, 600000],
+  },
+  {
+    name: "Piaggio Ape Xtra",
+    type: "Three-Wheeler",
+    capacity: [500, 600],
+    cost: [300000, 350000],
+  },
+  {
+    name: "Bajaj Maxima Z",
+    type: "Three-Wheeler",
+    capacity: [500, 550],
+    cost: [280000, 320000],
+  },
+  {
+    name: "Ashok Leyland Boss",
+    type: "HCV",
+    capacity: [9000, 10000],
+    cost: [2800000, 3200000],
+  },
 ] as const
 
 const FIRST_NAMES = [
-  "Rajesh", "Amit", "Suresh", "Vijay", "Ramesh", "Anil", "Ganesh", "Manoj",
-  "Deepak", "Arjun", "Sanjay", "Ravi", "Prakash", "Vikram", "Ashok", "Naveen",
-  "Rakesh", "Sunil", "Mahesh", "Dinesh", "Priya", "Sunita", "Kavita", "Anita",
-  "Pooja", "Neha", "Meena", "Geeta", "Rekha", "Shweta", "Kiran", "Farhan",
-  "Imran", "Salim", "Iqbal", "Harpreet", "Gurpreet", "Jaspreet", "Balwinder",
-  "Muthu", "Karthik", "Senthil", "Rajan", "Krishnan", "Venkatesh", "Srinivas",
-  "Rahul", "Rohit", "Aditya", "Nitin", "Yogesh", "Pankaj", "Ajay", "Vinod",
-  "Satish", "Mohan", "Raju", "Sandeep",
+  "Rajesh",
+  "Amit",
+  "Suresh",
+  "Vijay",
+  "Ramesh",
+  "Anil",
+  "Ganesh",
+  "Manoj",
+  "Deepak",
+  "Arjun",
+  "Sanjay",
+  "Ravi",
+  "Prakash",
+  "Vikram",
+  "Ashok",
+  "Naveen",
+  "Rakesh",
+  "Sunil",
+  "Mahesh",
+  "Dinesh",
+  "Priya",
+  "Sunita",
+  "Kavita",
+  "Anita",
+  "Pooja",
+  "Neha",
+  "Meena",
+  "Geeta",
+  "Rekha",
+  "Shweta",
+  "Kiran",
+  "Farhan",
+  "Imran",
+  "Salim",
+  "Iqbal",
+  "Harpreet",
+  "Gurpreet",
+  "Jaspreet",
+  "Balwinder",
+  "Muthu",
+  "Karthik",
+  "Senthil",
+  "Rajan",
+  "Krishnan",
+  "Venkatesh",
+  "Srinivas",
+  "Rahul",
+  "Rohit",
+  "Aditya",
+  "Nitin",
+  "Yogesh",
+  "Pankaj",
+  "Ajay",
+  "Vinod",
+  "Satish",
+  "Mohan",
+  "Raju",
+  "Sandeep",
 ]
 
 const LAST_NAMES = [
-  "Kumar", "Sharma", "Reddy", "Singh", "Yadav", "Verma", "Patil", "Tiwari",
-  "Nair", "Mehta", "Gupta", "Shankar", "Rao", "Chauhan", "Joshi", "Pandey",
-  "Deshmukh", "Iyer", "Choudhary", "Khan", "Kaur", "Gill", "Nadar", "Pillai",
-  "Menon", "Das", "Bose", "Chatterjee", "Banerjee",
+  "Kumar",
+  "Sharma",
+  "Reddy",
+  "Singh",
+  "Yadav",
+  "Verma",
+  "Patil",
+  "Tiwari",
+  "Nair",
+  "Mehta",
+  "Gupta",
+  "Shankar",
+  "Rao",
+  "Chauhan",
+  "Joshi",
+  "Pandey",
+  "Deshmukh",
+  "Iyer",
+  "Choudhary",
+  "Khan",
+  "Kaur",
+  "Gill",
+  "Nadar",
+  "Pillai",
+  "Menon",
+  "Das",
+  "Bose",
+  "Chatterjee",
+  "Banerjee",
 ]
 
 const LICENSE_CATEGORIES = ["LMV", "HMV", "HGMV", "Transport", "Heavy Vehicle"]
 
 const HUB_SUFFIXES = [
-  "Distribution Hub", "Logistics Park", "Freight Terminal", "Cargo Depot",
-  "Warehouse", "Regional Depot",
+  "Distribution Hub",
+  "Logistics Park",
+  "Freight Terminal",
+  "Cargo Depot",
+  "Warehouse",
+  "Regional Depot",
 ]
 
 const ALL_CITIES = STATES.flatMap((s) => s.cities)
 
 const MAINTENANCE_SERVICE_TYPES = [
-  "Oil Change", "Brake Inspection", "Tyre Rotation", "Engine Tune-up",
-  "Clutch Repair", "Battery Replacement", "AC Service", "Suspension Check",
-  "Wheel Alignment", "General Service", "Radiator Flush",
-  "Transmission Service", "Electrical Repair", "Denting & Painting",
+  "Oil Change",
+  "Brake Inspection",
+  "Tyre Rotation",
+  "Engine Tune-up",
+  "Clutch Repair",
+  "Battery Replacement",
+  "AC Service",
+  "Suspension Check",
+  "Wheel Alignment",
+  "General Service",
+  "Radiator Flush",
+  "Transmission Service",
+  "Electrical Repair",
+  "Denting & Painting",
 ]
 
 const INVENTORY_BASE_PARTS = [
-  "Brake Pad Set", "Air Filter", "Oil Filter", "Fuel Filter", "Timing Belt",
-  "Battery 12V", "Tyre 7.50-16", "Clutch Plate", "Radiator Coolant",
-  "Wiper Blade Set", "Headlight Assembly", "Spark Plug Set",
-  "Brake Fluid DOT4", "Engine Oil 15W40 (5L)", "Cabin Air Filter", "Fan Belt",
-  "Shock Absorber", "CV Joint Kit", "Alternator", "Starter Motor",
-  "Leaf Spring", "Wheel Bearing", "Brake Drum", "Clutch Cable", "Gear Oil",
-  "Radiator Hose", "Suspension Bush", "Horn", "Side Mirror",
+  "Brake Pad Set",
+  "Air Filter",
+  "Oil Filter",
+  "Fuel Filter",
+  "Timing Belt",
+  "Battery 12V",
+  "Tyre 7.50-16",
+  "Clutch Plate",
+  "Radiator Coolant",
+  "Wiper Blade Set",
+  "Headlight Assembly",
+  "Spark Plug Set",
+  "Brake Fluid DOT4",
+  "Engine Oil 15W40 (5L)",
+  "Cabin Air Filter",
+  "Fan Belt",
+  "Shock Absorber",
+  "CV Joint Kit",
+  "Alternator",
+  "Starter Motor",
+  "Leaf Spring",
+  "Wheel Bearing",
+  "Brake Drum",
+  "Clutch Cable",
+  "Gear Oil",
+  "Radiator Hose",
+  "Suspension Bush",
+  "Horn",
+  "Side Mirror",
   "Windshield Glass",
 ]
 
 const INVENTORY_BRANDS = [
-  "Bosch", "MRF", "Apollo", "Exide", "Amaron", "Tata Genuine",
-  "Mahindra Genuine", "Rane", "Lucas TVS", "Minda", "Denso", "Valeo",
+  "Bosch",
+  "MRF",
+  "Apollo",
+  "Exide",
+  "Amaron",
+  "Tata Genuine",
+  "Mahindra Genuine",
+  "Rane",
+  "Lucas TVS",
+  "Minda",
+  "Denso",
+  "Valeo",
 ]
 
 function generateHubName() {
@@ -460,7 +641,10 @@ async function seedTrips(
         status === "Completed"
           ? randFloat(plannedDistanceKm / 12, plannedDistanceKm / 5).toFixed(2)
           : null,
-      revenue: isDraft && Math.random() < 0.5 ? null : randFloat(1500, 28000).toFixed(2),
+      revenue:
+        isDraft && Math.random() < 0.5
+          ? null
+          : randFloat(1500, 28000).toFixed(2),
       status,
       createdAt: isDraft ? daysAgo(randInt(0, 10)) : daysAgo(randInt(5, 180)),
     })
@@ -578,9 +762,7 @@ async function seedExpenses(
         vehicleId: v.id,
         tripId,
         category: (isToll ? "toll" : "other") as "toll" | "other",
-        amount: (isToll ? randFloat(50, 800) : randFloat(200, 5000)).toFixed(
-          2
-        ),
+        amount: (isToll ? randFloat(50, 800) : randFloat(200, 5000)).toFixed(2),
         date: daysAgo(randInt(0, 180)),
       }
     }
@@ -637,7 +819,9 @@ async function seedFleetData() {
   console.log(`Trips: ${trips.length}`)
 
   await seedMaintenanceRecords(vehicles)
-  console.log(`Maintenance records: ${await countOf(db.select().from(maintenanceRecord))}`)
+  console.log(
+    `Maintenance records: ${await countOf(db.select().from(maintenanceRecord))}`
+  )
 
   await seedFuelLogs(vehicles, trips)
   console.log(`Fuel logs: ${await countOf(db.select().from(fuelLog))}`)
@@ -646,7 +830,9 @@ async function seedFleetData() {
   console.log(`Expenses: ${await countOf(db.select().from(expense))}`)
 
   await seedInventoryItems()
-  console.log(`Inventory items: ${await countOf(db.select().from(inventoryItem))}`)
+  console.log(
+    `Inventory items: ${await countOf(db.select().from(inventoryItem))}`
+  )
 }
 
 async function main() {
