@@ -1,12 +1,12 @@
-import { requireSession } from "@/lib/auth-guard"
+import { SettingsClient } from "@/app/(app)/settings/settings-client"
 import type { PermissionAction } from "@/db/schema/constants"
+import { requireSession } from "@/lib/auth-guard"
 import { getUserProfile } from "@/modules/profile/profile.service"
 import {
   getPermissionMatrix,
   getUserPermissions,
   listRoles,
 } from "@/modules/rbac/rbac.service"
-import { SettingsClient } from "@/app/(app)/settings/settings-client"
 import { redirect } from "next/navigation"
 
 export default async function SettingsPage() {

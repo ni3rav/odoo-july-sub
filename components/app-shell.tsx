@@ -47,7 +47,7 @@ export function AppShell({
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <Sidebar className="border-r border-border bg-card">
-          <SidebarHeader className="border-b border-border p-4">
+          <SidebarHeader className="border-b border-border">
             <Link href="/dashboard">
               <AppLogo />
             </Link>
