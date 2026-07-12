@@ -121,8 +121,9 @@ export default function SignInPage() {
     <div className="grid min-h-screen w-full lg:grid-cols-2">
       <div className="flex flex-col justify-between bg-background p-6 md:p-10">
         <div className="flex items-center gap-2 text-lg font-semibold text-primary">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <Truck className="h-6 w-6" />
+          <div className="flex size-12 items-center justify-center rounded-lg overflow-hidden p-1">
+            <img src="/light-icon-app.png" alt="TransitOps Logo" className="h-full w-full object-contain block dark:hidden" />
+            <img src="/dark-icon-app.png" alt="TransitOps Logo" className="h-full w-full object-contain hidden dark:block" />
           </div>
           <span>TransitOps</span>
         </div>

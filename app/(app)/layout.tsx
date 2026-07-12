@@ -14,7 +14,6 @@ import { SidebarNav } from "@/components/sidebar-nav"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { ActiveRouteTitle } from "@/components/active-route-title"
 import Link from "next/link"
-import { Truck } from "lucide-react"
 
 const NAV_ITEMS = [
   {
@@ -83,8 +82,9 @@ export default async function AppLayout({
               href="/dashboard"
               className="flex items-center gap-2 text-lg font-semibold text-primary"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Truck className="h-5 w-5" />
+              <div className="flex size-12 items-center justify-center rounded-lg overflow-hidden p-0.5">
+                <img src="/light-icon-app.png" alt="TransitOps Logo" className="h-full w-full object-contain block dark:hidden" />
+                <img src="/dark-icon-app.png" alt="TransitOps Logo" className="h-full w-full object-contain hidden dark:block" />
               </div>
               <span>TransitOps</span>
             </Link>
