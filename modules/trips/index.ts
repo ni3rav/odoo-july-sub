@@ -1,6 +1,8 @@
 export {
+  buildCreateTripSchema,
   completeTripSchema,
   createTripSchema,
+  formatCargoCapacityError,
   tripQuerySchema,
   tripStatusSchema,
   updateTripSchema,

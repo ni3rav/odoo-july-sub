@@ -1,17 +1,25 @@
 import { z } from "zod"
 import { DRIVER_STATUSES, VEHICLE_STATUSES } from "@/db/schema/constants"
+import {
+  nonNegativeInt,
+  nonNegativeNumber,
+  requiredPositiveInt,
+  requiredText,
+  safetyScoreField,
+  requiredDateField,
+} from "@/lib/zod-fields"
 
 export const vehicleStatusSchema = z.enum(VEHICLE_STATUSES)
 export const driverStatusSchema = z.enum(DRIVER_STATUSES)
 
 export const createVehicleSchema = z.object({
-  registrationNumber: z.string().trim().min(1).max(32),
-  name: z.string().trim().min(1).max(120),
-  type: z.string().trim().min(1).max(50),
-  maxLoadCapacityKg: z.number().int().positive(),
-  odometerKm: z.number().int().nonnegative(),
-  acquisitionCost: z.number().nonnegative(),
-  region: z.string().trim().min(1).max(50),
+  registrationNumber: requiredText("Registration number", 32),
+  name: requiredText("Name", 120),
+  type: requiredText("Type", 50),
+  maxLoadCapacityKg: requiredPositiveInt("Max load capacity"),
+  odometerKm: nonNegativeInt("Odometer"),
+  acquisitionCost: nonNegativeNumber("Acquisition cost"),
+  region: requiredText("Region", 50),
 })
 
 export const updateVehicleSchema = createVehicleSchema.partial()
@@ -28,12 +36,12 @@ export type UpdateVehicleInput = z.infer<typeof updateVehicleSchema>
 export type VehicleQueryInput = z.infer<typeof vehicleQuerySchema>
 
 export const createDriverSchema = z.object({
-  name: z.string().trim().min(1).max(120),
-  licenseNumber: z.string().trim().min(1).max(50),
-  licenseCategory: z.string().trim().min(1).max(50),
-  licenseExpiryDate: z.iso.date(),
-  contactNumber: z.string().trim().min(1).max(30),
-  safetyScore: z.number().int().min(0).max(100),
+  name: requiredText("Name", 120),
+  licenseNumber: requiredText("License number", 50),
+  licenseCategory: requiredText("License category", 50),
+  licenseExpiryDate: requiredDateField("License expiry"),
+  contactNumber: requiredText("Contact number", 30),
+  safetyScore: safetyScoreField(),
 })
 
 export const updateDriverSchema = createDriverSchema.partial()

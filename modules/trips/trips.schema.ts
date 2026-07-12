@@ -1,18 +1,51 @@
 import { z } from "zod"
 import { TRIP_STATUSES } from "@/db/schema/constants"
+import {
+  optionalNonNegativeNumber,
+  optionalText,
+  requiredPositiveInt,
+  requiredText,
+} from "@/lib/zod-fields"
 
 export const tripStatusSchema = z.enum(TRIP_STATUSES)
 
 export const createTripSchema = z.object({
-  orderId: z.string().trim().max(50).optional(),
-  source: z.string().trim().min(1).max(120),
-  destination: z.string().trim().min(1).max(120),
-  vehicleId: z.string().trim().min(1),
-  driverId: z.string().trim().min(1),
-  cargoWeightKg: z.number().int().positive(),
-  plannedDistanceKm: z.number().int().positive(),
-  revenue: z.number().nonnegative().optional(),
+  orderId: optionalText(50),
+  source: requiredText("Source", 120),
+  destination: requiredText("Destination", 120),
+  vehicleId: requiredText("Vehicle", 50),
+  driverId: requiredText("Driver", 50),
+  cargoWeightKg: requiredPositiveInt("Cargo weight"),
+  plannedDistanceKm: requiredPositiveInt("Planned distance"),
+  revenue: optionalNonNegativeNumber("Revenue"),
 })
+
+export function formatCargoCapacityError(
+  cargoWeightKg: number,
+  maxLoadCapacityKg: number
+) {
+  const exceeded = cargoWeightKg - maxLoadCapacityKg
+  return `Capacity exceeded by ${exceeded} kg — Dispatch blocked`
+}
+
+export function buildCreateTripSchema(maxLoadCapacityKg?: number) {
+  return createTripSchema.superRefine((data, ctx) => {
+    if (maxLoadCapacityKg === undefined || Number.isNaN(data.cargoWeightKg)) {
+      return
+    }
+
+    if (data.cargoWeightKg > maxLoadCapacityKg) {
+      ctx.addIssue({
+        code: "custom",
+        message: formatCargoCapacityError(
+          data.cargoWeightKg,
+          maxLoadCapacityKg
+        ),
+        path: ["cargoWeightKg"],
+      })
+    }
+  })
+}
 
 export const updateTripSchema = createTripSchema.partial()
 
@@ -22,9 +55,12 @@ export const tripQuerySchema = z.object({
 })
 
 export const completeTripSchema = z.object({
-  actualOdometerKm: z.number().int().positive(),
-  fuelConsumedLiters: z.number().positive(),
-  revenue: z.number().nonnegative().optional(),
+  actualOdometerKm: requiredPositiveInt("Final odometer"),
+  fuelConsumedLiters: z
+    .number({ error: "Fuel consumed is required" })
+    .refine((value) => !Number.isNaN(value), "Fuel consumed is required")
+    .positive("Fuel consumed must be greater than 0"),
+  revenue: optionalNonNegativeNumber("Revenue"),
 })
 
 export type CreateTripInput = z.infer<typeof createTripSchema>

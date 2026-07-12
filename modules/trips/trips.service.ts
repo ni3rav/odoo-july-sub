@@ -8,6 +8,7 @@ import type {
   TripQueryInput,
   UpdateTripInput,
 } from "@/modules/trips/trips.schema"
+import { formatCargoCapacityError } from "@/modules/trips/trips.schema"
 
 function generateTripId() {
   return crypto.randomUUID()
@@ -58,8 +59,12 @@ function validateDispatchRules(
     errors.push("Driver license has expired — Dispatch blocked")
   }
   if (tripRow.cargoWeightKg > vehicleRow.maxLoadCapacityKg) {
-    const exceeded = tripRow.cargoWeightKg - vehicleRow.maxLoadCapacityKg
-    errors.push(`Capacity exceeded by ${exceeded} kg — Dispatch blocked`)
+    errors.push(
+      formatCargoCapacityError(
+        tripRow.cargoWeightKg,
+        vehicleRow.maxLoadCapacityKg
+      )
+    )
   }
 
   return errors
@@ -188,8 +193,17 @@ async function loadTripBundle(tripId: string) {
 
 export async function createTrip(input: CreateTripInput) {
   const bundle = await loadAssignmentEntities(input.vehicleId, input.driverId)
-  if (bundle.error) {
-    return { error: bundle.error }
+  if (bundle.error || !bundle.data) {
+    return { error: bundle.error ?? "Vehicle or driver not found" }
+  }
+
+  if (input.cargoWeightKg > bundle.data.vehicle.maxLoadCapacityKg) {
+    return {
+      error: `cargoWeightKg: ${formatCargoCapacityError(
+        input.cargoWeightKg,
+        bundle.data.vehicle.maxLoadCapacityKg
+      )}`,
+    }
   }
 
   const { data: rows, error } = await tryCatch(
@@ -245,13 +259,21 @@ export async function updateTrip(tripId: string, input: UpdateTripInput) {
     return { error: "Only draft trips can be edited" }
   }
 
-  if (input.vehicleId || input.driverId) {
-    const bundle = await loadAssignmentEntities(
-      input.vehicleId ?? existing.data.trip.vehicleId,
-      input.driverId ?? existing.data.trip.driverId
-    )
-    if (bundle.error) {
-      return { error: bundle.error }
+  const vehicleId = input.vehicleId ?? existing.data.trip.vehicleId
+  const driverId = input.driverId ?? existing.data.trip.driverId
+  const cargoWeightKg = input.cargoWeightKg ?? existing.data.trip.cargoWeightKg
+
+  const bundle = await loadAssignmentEntities(vehicleId, driverId)
+  if (bundle.error || !bundle.data) {
+    return { error: bundle.error ?? "Vehicle or driver not found" }
+  }
+
+  if (cargoWeightKg > bundle.data.vehicle.maxLoadCapacityKg) {
+    return {
+      error: `cargoWeightKg: ${formatCargoCapacityError(
+        cargoWeightKg,
+        bundle.data.vehicle.maxLoadCapacityKg
+      )}`,
     }
   }
 

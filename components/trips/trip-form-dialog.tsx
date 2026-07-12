@@ -3,6 +3,8 @@
 import * as React from "react"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { FormErrorBanner } from "@/components/form/form-error-banner"
+import { fieldErrorClassName, FormField } from "@/components/form/form-field"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -14,7 +16,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -30,8 +31,14 @@ import {
   useUpdateTripMutation,
   type TripRecord,
 } from "@/components/trips/trip-queries"
+import { handleFormSubmitError } from "@/lib/handle-form-submit-error"
 import { tryCatch } from "@/lib/try-catch"
-import { createTripSchema, type CreateTripInput } from "@/modules/trips"
+import { optionalNumberRegisterOptions } from "@/lib/zod-fields"
+import {
+  buildCreateTripSchema,
+  formatCargoCapacityError,
+  type CreateTripInput,
+} from "@/modules/trips"
 
 type TripFormDialogProps = {
   trigger: React.ReactNode
@@ -42,6 +49,16 @@ function isDispatchEligible(licenseExpiryDate: Date | string, status: string) {
   const expired = new Date(licenseExpiryDate) < new Date()
   return status === "Available" && !expired
 }
+
+const emptyTripValues = {
+  orderId: "",
+  source: "",
+  destination: "",
+  vehicleId: "",
+  driverId: "",
+  cargoWeightKg: Number.NaN,
+  plannedDistanceKm: Number.NaN,
+} satisfies CreateTripInput
 
 export function TripFormDialog({ trigger, trip }: TripFormDialogProps) {
   const [open, setOpen] = React.useState(false)
@@ -67,9 +84,14 @@ export function TripFormDialog({ trigger, trip }: TripFormDialogProps) {
     register,
     handleSubmit,
     reset,
+    setError,
+    clearErrors,
+    watch,
+    trigger: triggerValidation,
     formState: { errors },
   } = useForm<CreateTripInput>({
-    resolver: zodResolver(createTripSchema),
+    resolver: zodResolver(buildCreateTripSchema()),
+    mode: "onTouched",
     defaultValues: trip
       ? {
           orderId: trip.orderId,
@@ -81,35 +103,92 @@ export function TripFormDialog({ trigger, trip }: TripFormDialogProps) {
           plannedDistanceKm: trip.plannedDistanceKm,
           revenue: trip.revenue ?? undefined,
         }
-      : {
-          source: "",
-          destination: "",
-          vehicleId: "",
-          driverId: "",
-          cargoWeightKg: 0,
-          plannedDistanceKm: 0,
-        },
+      : emptyTripValues,
   })
+
+  const selectedVehicleId = watch("vehicleId")
+
+  const selectedVehicleCapacity = React.useMemo(() => {
+    if (!selectedVehicleId) {
+      return undefined
+    }
+
+    const matchedVehicle = vehiclesQuery.data?.find(
+      (vehicle) => vehicle.id === selectedVehicleId
+    )
+    if (matchedVehicle) {
+      return matchedVehicle.maxLoadCapacityKg
+    }
+
+    if (trip?.vehicleId === selectedVehicleId) {
+      return trip.vehicleMaxLoadKg
+    }
+
+    return undefined
+  }, [selectedVehicleId, trip, vehiclesQuery.data])
+
+  React.useEffect(() => {
+    void triggerValidation("cargoWeightKg")
+  }, [selectedVehicleCapacity, triggerValidation])
+
+  function handleOpenChange(nextOpen: boolean) {
+    setOpen(nextOpen)
+    if (nextOpen) {
+      setFormError(null)
+      clearErrors()
+      reset(
+        trip
+          ? {
+              orderId: trip.orderId,
+              source: trip.source,
+              destination: trip.destination,
+              vehicleId: trip.vehicleId,
+              driverId: trip.driverId,
+              cargoWeightKg: trip.cargoWeightKg,
+              plannedDistanceKm: trip.plannedDistanceKm,
+              revenue: trip.revenue ?? undefined,
+            }
+          : emptyTripValues
+      )
+    }
+  }
 
   async function onSubmit(values: CreateTripInput) {
     setFormError(null)
+    clearErrors()
+
+    const parsed = buildCreateTripSchema(selectedVehicleCapacity).safeParse(
+      values
+    )
+    if (!parsed.success) {
+      for (const issue of parsed.error.issues) {
+        const field = issue.path[0]
+        if (typeof field === "string") {
+          setError(field as keyof CreateTripInput, {
+            type: "manual",
+            message: issue.message,
+          })
+        }
+      }
+      return
+    }
+
     const { error } = await tryCatch(
       isEdit && trip
-        ? updateMutation.mutateAsync({ id: trip.id, input: values })
-        : createMutation.mutateAsync(values)
+        ? updateMutation.mutateAsync({ id: trip.id, input: parsed.data })
+        : createMutation.mutateAsync(parsed.data)
     )
 
     if (error) {
-      setFormError(error.message)
+      handleFormSubmitError(error, setError, setFormError)
       return
     }
 
     setOpen(false)
-    reset()
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
@@ -121,71 +200,86 @@ export function TripFormDialog({ trigger, trip }: TripFormDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
-        {formError && (
-          <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-            {formError}
-          </div>
-        )}
+        <FormErrorBanner message={formError} />
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="order-id">Trip ID</Label>
+            <FormField
+              label="Trip ID"
+              htmlFor="order-id"
+              error={errors.orderId?.message}
+            >
               <Input
                 id="order-id"
                 placeholder="Auto-generated if empty"
+                aria-invalid={Boolean(errors.orderId)}
+                className={fieldErrorClassName(errors.orderId?.message)}
                 {...register("orderId")}
               />
-              {errors.orderId && (
-                <p className="text-sm text-destructive">
-                  {errors.orderId.message}
-                </p>
-              )}
-            </div>
+            </FormField>
 
-            <div className="space-y-2">
-              <Label htmlFor="revenue">Revenue (optional)</Label>
+            <FormField
+              label="Revenue (optional)"
+              htmlFor="revenue"
+              error={errors.revenue?.message}
+            >
               <Input
                 id="revenue"
                 type="number"
                 step="0.01"
-                {...register("revenue", { valueAsNumber: true })}
+                aria-invalid={Boolean(errors.revenue)}
+                className={fieldErrorClassName(errors.revenue?.message)}
+                {...register("revenue", optionalNumberRegisterOptions)}
               />
-              {errors.revenue && (
-                <p className="text-sm text-destructive">
-                  {errors.revenue.message}
-                </p>
-              )}
-            </div>
+            </FormField>
 
-            <div className="space-y-2">
-              <Label htmlFor="source">Source</Label>
-              <Input id="source" {...register("source")} />
-              {errors.source && (
-                <p className="text-sm text-destructive">
-                  {errors.source.message}
-                </p>
-              )}
-            </div>
+            <FormField
+              label="Source"
+              htmlFor="source"
+              error={errors.source?.message}
+            >
+              <Input
+                id="source"
+                aria-invalid={Boolean(errors.source)}
+                className={fieldErrorClassName(errors.source?.message)}
+                {...register("source")}
+              />
+            </FormField>
 
-            <div className="space-y-2">
-              <Label htmlFor="destination">Destination</Label>
-              <Input id="destination" {...register("destination")} />
-              {errors.destination && (
-                <p className="text-sm text-destructive">
-                  {errors.destination.message}
-                </p>
-              )}
-            </div>
+            <FormField
+              label="Destination"
+              htmlFor="destination"
+              error={errors.destination?.message}
+            >
+              <Input
+                id="destination"
+                aria-invalid={Boolean(errors.destination)}
+                className={fieldErrorClassName(errors.destination?.message)}
+                {...register("destination")}
+              />
+            </FormField>
 
-            <div className="space-y-2">
-              <Label htmlFor="vehicle-id">Vehicle</Label>
+            <FormField
+              label="Vehicle"
+              htmlFor="vehicle-id"
+              error={errors.vehicleId?.message}
+            >
               <Controller
                 control={control}
                 name="vehicleId"
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id="vehicle-id" className="w-full">
+                  <Select
+                    value={field.value}
+                    onValueChange={(value) => {
+                      field.onChange(value)
+                      void triggerValidation("cargoWeightKg")
+                    }}
+                  >
+                    <SelectTrigger
+                      id="vehicle-id"
+                      aria-invalid={Boolean(errors.vehicleId)}
+                      className={fieldErrorClassName(errors.vehicleId?.message)}
+                    >
                       <SelectValue placeholder="Select vehicle" />
                     </SelectTrigger>
                     <SelectContent>
@@ -199,21 +293,23 @@ export function TripFormDialog({ trigger, trip }: TripFormDialogProps) {
                   </Select>
                 )}
               />
-              {errors.vehicleId && (
-                <p className="text-sm text-destructive">
-                  {errors.vehicleId.message}
-                </p>
-              )}
-            </div>
+            </FormField>
 
-            <div className="space-y-2">
-              <Label htmlFor="driver-id">Driver</Label>
+            <FormField
+              label="Driver"
+              htmlFor="driver-id"
+              error={errors.driverId?.message}
+            >
               <Controller
                 control={control}
                 name="driverId"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id="driver-id" className="w-full">
+                    <SelectTrigger
+                      id="driver-id"
+                      aria-invalid={Boolean(errors.driverId)}
+                      className={fieldErrorClassName(errors.driverId?.message)}
+                    >
                       <SelectValue placeholder="Select driver" />
                     </SelectTrigger>
                     <SelectContent>
@@ -226,40 +322,67 @@ export function TripFormDialog({ trigger, trip }: TripFormDialogProps) {
                   </Select>
                 )}
               />
-              {errors.driverId && (
-                <p className="text-sm text-destructive">
-                  {errors.driverId.message}
-                </p>
-              )}
-            </div>
+            </FormField>
 
-            <div className="space-y-2">
-              <Label htmlFor="cargo-weight">Cargo weight (kg)</Label>
+            <FormField
+              label="Cargo weight (kg)"
+              htmlFor="cargo-weight"
+              error={errors.cargoWeightKg?.message}
+            >
               <Input
                 id="cargo-weight"
                 type="number"
-                {...register("cargoWeightKg", { valueAsNumber: true })}
+                min={1}
+                max={selectedVehicleCapacity}
+                disabled={!selectedVehicleId}
+                aria-invalid={Boolean(errors.cargoWeightKg)}
+                className={fieldErrorClassName(errors.cargoWeightKg?.message)}
+                {...register("cargoWeightKg", {
+                  valueAsNumber: true,
+                  validate: (value) => {
+                    if (Number.isNaN(value)) {
+                      return true
+                    }
+                    if (
+                      selectedVehicleCapacity !== undefined &&
+                      value > selectedVehicleCapacity
+                    ) {
+                      return formatCargoCapacityError(
+                        value,
+                        selectedVehicleCapacity
+                      )
+                    }
+                    return true
+                  },
+                })}
               />
-              {errors.cargoWeightKg && (
-                <p className="text-sm text-destructive">
-                  {errors.cargoWeightKg.message}
+              {selectedVehicleCapacity !== undefined && (
+                <p className="text-sm text-muted-foreground">
+                  Maximum capacity: {selectedVehicleCapacity} kg
                 </p>
               )}
-            </div>
+              {!selectedVehicleId && (
+                <p className="text-sm text-muted-foreground">
+                  Select a vehicle to set cargo capacity.
+                </p>
+              )}
+            </FormField>
 
-            <div className="space-y-2">
-              <Label htmlFor="planned-distance">Planned distance (km)</Label>
+            <FormField
+              label="Planned distance (km)"
+              htmlFor="planned-distance"
+              error={errors.plannedDistanceKm?.message}
+            >
               <Input
                 id="planned-distance"
                 type="number"
+                aria-invalid={Boolean(errors.plannedDistanceKm)}
+                className={fieldErrorClassName(
+                  errors.plannedDistanceKm?.message
+                )}
                 {...register("plannedDistanceKm", { valueAsNumber: true })}
               />
-              {errors.plannedDistanceKm && (
-                <p className="text-sm text-destructive">
-                  {errors.plannedDistanceKm.message}
-                </p>
-              )}
-            </div>
+            </FormField>
           </div>
 
           <DialogFooter>
