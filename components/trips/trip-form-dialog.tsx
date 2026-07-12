@@ -20,11 +20,13 @@ import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { useDriversQuery } from "@/components/drivers/driver-queries"
 import { useVehiclesQuery } from "@/components/fleet/fleet-queries"
+import { TripLocationPickerDialog } from "@/components/trips/trip-location-picker-dialog"
 import {
   useCreateTripMutation,
   useUpdateTripMutation,
   type TripRecord,
 } from "@/components/trips/trip-queries"
+import { MapPin } from "lucide-react"
 import { handleFormSubmitError } from "@/lib/handle-form-submit-error"
 import { tryCatch } from "@/lib/try-catch"
 import { optionalNumberRegisterOptions } from "@/lib/zod-fields"
@@ -99,6 +101,7 @@ export function TripFormDialog({ trigger, trip }: TripFormDialogProps) {
     handleSubmit,
     reset,
     setError,
+    setValue,
     clearErrors,
     watch,
     trigger: triggerValidation,
@@ -247,6 +250,26 @@ export function TripFormDialog({ trigger, trip }: TripFormDialogProps) {
               />
             </FormField>
 
+            <div className="flex items-center justify-between md:col-span-2">
+              <p className="text-sm text-muted-foreground">
+                Source &amp; destination
+              </p>
+              <TripLocationPickerDialog
+                trigger={
+                  <Button type="button" variant="outline" size="sm">
+                    <MapPin className="h-3.5 w-3.5" />
+                    Pick on map
+                  </Button>
+                }
+                onConfirm={(source, destination) => {
+                  setValue("source", source, { shouldValidate: true })
+                  setValue("destination", destination, {
+                    shouldValidate: true,
+                  })
+                }}
+              />
+            </div>
+
             <FormField
               label="Source"
               htmlFor="source"
@@ -254,6 +277,7 @@ export function TripFormDialog({ trigger, trip }: TripFormDialogProps) {
             >
               <Input
                 id="source"
+                placeholder="Type or pick on map"
                 aria-invalid={Boolean(errors.source)}
                 className={fieldErrorClassName(errors.source?.message)}
                 {...register("source")}
@@ -267,6 +291,7 @@ export function TripFormDialog({ trigger, trip }: TripFormDialogProps) {
             >
               <Input
                 id="destination"
+                placeholder="Type or pick on map"
                 aria-invalid={Boolean(errors.destination)}
                 className={fieldErrorClassName(errors.destination?.message)}
                 {...register("destination")}
