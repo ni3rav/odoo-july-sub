@@ -30,6 +30,12 @@ export const nonNegativeNumber = (label: string) =>
     .refine((value) => !Number.isNaN(value), `${label} is required`)
     .nonnegative(`${label} cannot be negative`)
 
+export const requiredPositiveNumber = (label: string) =>
+  z
+    .number({ error: `${label} is required` })
+    .refine((value) => !Number.isNaN(value), `${label} is required`)
+    .positive(`${label} must be greater than 0`)
+
 export const optionalNonNegativeNumber = (label: string) =>
   z
     .number()
